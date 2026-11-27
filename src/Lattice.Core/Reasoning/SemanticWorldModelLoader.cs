@@ -206,6 +206,15 @@ public sealed class SemanticWorldModelLoader
         public string Form { get; set; } = string.Empty;
         public string Concept { get; set; } = string.Empty;
         public string PartOfSpeech { get; set; } = string.Empty;
+        public List<LexemeSlotDocument>? Slots { get; set; }
+    }
+
+    internal sealed class LexemeSlotDocument
+    {
+        public LexemeSlotDocument() { }
+        public string Name { get; set; } = string.Empty;
+        public string Concept { get; set; } = string.Empty;
+        public string Kind { get; set; } = string.Empty;
     }
 
     internal sealed class RelationDocument

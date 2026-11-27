@@ -106,6 +106,9 @@ public sealed class TaskRequestParserTests
         Assert.Equal("program-generation", request.Scope);
         Assert.Equal(new[] { "source-code" }, request.Requirements);
         Assert.Equal(input, utterance.SourceText);
+
+        // The task's own phrasing survives the normalised subject, so a form with slots can read its parts.
+        Assert.Equal("replaces all of objects with a specific name with a point light", request.Phrase);
     }
 
     [Fact]

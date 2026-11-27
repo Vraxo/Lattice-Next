@@ -27,14 +27,16 @@ public static class SemanticProgramPlanner
     /// </summary>
     private static readonly ImmutableArray<string> UnmappedScalarIntentFactIds =
     [
-        "program.arithmetic",
-        "program.output",
-        "program.output.start"
+        "program.arithmetic"
     ];
 
+    /// <summary>
+    /// An output the request states as an expression ("prints total + 3") is still realized by the rule path:
+    /// only an output stated in words is projected onto an output requirement today.
+    /// </summary>
     private static readonly ImmutableArray<string> UnmappedScalarIntentFactPrefixes =
     [
-        "value.output"
+        "value.output.expression"
     ];
 
     /// <summary>

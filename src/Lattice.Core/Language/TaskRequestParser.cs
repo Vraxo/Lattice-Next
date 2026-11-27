@@ -134,7 +134,10 @@ internal static class TaskRequestParser
             SemanticWorldModel.Normalize(application),
             "source-code",
             "program-generation",
-            ImmutableArray.Create("source-code"));
+            ImmutableArray.Create("source-code"))
+        {
+            Phrase = task
+        };
 
         utterance = new SemanticUtterance(
             UtteranceKind.TaskRequest,

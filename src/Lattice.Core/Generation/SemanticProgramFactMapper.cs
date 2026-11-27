@@ -11,6 +11,9 @@ public static class SemanticProgramFactMapper
     private const string AssignmentValueFactId = "program.assignment.value";
     private const string ConditionFactId = "program.requirement.condition";
     private const string OutputFactId = "program.requirement.output";
+    private const string CapturedOutputFactId = "value.output";
+    private const string CapturedOutputValueId = "content";
+    private const string ExpressionOutputFactPrefix = "value.output.expression";
     private const string OutputValueId = "value";
     private const string BranchSeparatorValueId = "branch";
     private const string ConditionLayoutValueId = "layout";
@@ -318,6 +321,11 @@ public static class SemanticProgramFactMapper
         }
 
         if (!TryProjectOutputs(facts, events, ref eventOrder, out var branchSeparatorPosition, out error))
+        {
+            return false;
+        }
+
+        if (!TryProjectCapturedOutput(facts, declarations, events, ref eventOrder))
         {
             return false;
         }
@@ -2398,6 +2406,51 @@ public static class SemanticProgramFactMapper
 
         return true;
     }
+
+    /// <summary>
+    /// Projects the output a request names in words — "print Hello World", "outputs Done" — onto one output
+    /// requirement. A typed output requirement is projected first, and a family that reports something itself
+    /// has already declared an output, so this only fills the gap a captured value would otherwise leave.
+    /// </summary>
+    private static bool TryProjectCapturedOutput(
+        ImmutableArray<SequenceSemanticFact> facts,
+        ImmutableArray<ProgramRequirement>.Builder declarations,
+        ImmutableArray<RequirementEvent>.Builder events,
+        ref int eventOrder)
+    {
+        // Anything else the request states keeps its own path: a declared loop, an arithmetic expression, or a
+        // typed output is not something a captured value can stand in for.
+        if (facts.Any(fact => fact.Id == OutputFactId) ||
+            facts.Any(fact => fact.Id.StartsWith(ExpressionOutputFactPrefix, StringComparison.Ordinal)) ||
+            facts.Any(fact => fact.Id.StartsWith("program.", StringComparison.Ordinal) &&
+                !IsOutputCue(fact.Id)) ||
+            declarations.Any(requirement => requirement is OutputRequirement) ||
+            events.Any(item => item.Requirement is OutputRequirement))
+        {
+            return true;
+        }
+
+        var captured = facts.FirstOrDefault(fact =>
+            fact.Id == CapturedOutputFactId &&
+            fact.Values.TryGetValue(CapturedOutputValueId, out var value) &&
+            !string.IsNullOrWhiteSpace(value));
+        if (captured is null)
+        {
+            return true;
+        }
+
+        // A captured output is reported after everything the request states first.
+        events.Add(new RequirementEvent(
+            int.MaxValue,
+            eventOrder++,
+            new OutputRequirement(new SemanticTextExpression(captured.Values[CapturedOutputValueId]))));
+        return true;
+    }
+
+    /// <summary>Whether a program fact is one of the cues a captured output is read through.</summary>
+    private static bool IsOutputCue(string factId) =>
+        factId is "program.output" or "program.output.start" ||
+        factId.StartsWith("program.assignment", StringComparison.Ordinal);
 
     private static bool TryProjectOutputs(
         ImmutableArray<SequenceSemanticFact> facts,

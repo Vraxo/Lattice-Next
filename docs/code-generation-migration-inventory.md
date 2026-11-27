@@ -1369,3 +1369,113 @@ Current counts after this segment: **21 sequence rules**, **241 input rules**, *
 the Python pack holds **104 productions**, **26 bindings**, **109 operations**, and **9 api expression formats**;
 the Blender domain file holds **121 concepts** and **244 relation assertions**, with **18 steps** and **10 API
 references**.
+
+## M-12.9a — a lexeme form carries the parts of a phrase it leaves open
+
+A task concept used to be reachable only by the whole phrase, so "objects named Cube" created a concept with no
+steps. A lexeme now declares `slots`:
+
+| Part | What it holds |
+| --- | --- |
+| `SemanticLexemeSlot(Name, Concept, Kind)` | `Name` locates the `{name}` marker in the form, `Concept` is the individual the capture fills, `Kind` says what the capture must be |
+| slot `Kind` `text` | the phrase is kept as written |
+| any other `Kind` | a declared concept the captured phrase must resolve to, so the value is that individual's label |
+| loader validation | markers present in the form, names unique identifiers, slot concepts declared, kinds either `text` or a declared concept, at most eight slots |
+| `SemanticWorldModel.TryMatchLexeme` | exact form or id first, then every slot-bearing form, returning the captured text per slot |
+
+The Blender knowledge declares one slot-bearing form —
+`replaces all of objects named {objectName} with a {lightKind}` — for the task concept, the `light-kind` type with
+`point light`, `sun light`, `spot light`, and `area light` lexemes, and the two slots it captures into:
+`slot-object-name` (`YourObjectName`) and `slot-light-kind` (`POINT`). Nothing consumes a capture yet, so the
+exact form still wins for the modelled request and the script, its step list, and its evidence are unchanged.
+
+Current counts after this segment: **21 sequence rules**, **241 input rules**, **30 validations**, **1 encoding**;
+the Python pack holds **104 productions**, **26 bindings**, **109 operations**, and **9 api expression formats**;
+the Blender domain file holds **129 concepts** and **250 relation assertions**, with **18 steps**, **10 API
+references**, and **7 lexemes**.
+
+## M-12.9b — the request's own words reach the script through declared slots
+
+`TaskRequestFormula` gained `Phrase`: the script-creation parse keeps the task's own wording beside the normalised
+subject, because the subject alone cannot carry its parts. The responder's task resolution is now two-step:
+
+* A concept for the normalised subject wins, exactly as before.
+* Otherwise `SemanticWorldModel.TryMatchLexeme` matches the phrase, and each captured slot resolves through its
+  declared `Kind` — `text` keeps the words, any other kind must resolve to an individual of that kind, else the
+  request is a miss.
+* A binding value the knowledge marks with `binding-value-has-slot` takes the resolved words in place of its
+  declared placeholder, so `YourObjectName` becomes the requested name and `POINT` the requested light kind.
+
+The Blender knowledge marks two values this way — the string value `YourObjectName` and the light-data expression
+holding `type="POINT"` — and declares `light-kind` individuals for `POINT`, `SUN`, `SPOT`, and `AREA`. A request
+naming a light kind the knowledge does not declare is refused (`InformationUnavailable`) rather than given an
+invented kind; every unparameterised request still matches its exact form, so the script, its step list, and its
+evidence stay byte-identical.
+
+Current counts after this segment: **21 sequence rules**, **241 input rules**, **30 validations**, **1 encoding**;
+the Python pack holds **104 productions**, **26 bindings**, **109 operations**, and **9 api expression formats**;
+the Blender domain file holds **129 concepts**, **9 relations**, and **252 relation assertions**, with **18 steps**,
+**10 API references**, and **7 lexemes**.
+
+## M-12.14 — proof that a request's own words reach the script
+
+`Fills_the_object_name_and_light_kind_a_request_states` submits "replaces all of objects named Cube with a sun
+light" and asserts `target_name = "Cube"` and `type="SUN"`, that neither declared placeholder (`YourObjectName`,
+`POINT`) survives in the answer, and that the lines the slots do not touch — the compiled name pattern and the
+removal call — are still the knowledge's own text. The companion test refuses "a strobe light", so an undeclared
+kind cannot reach the script.
+
+## M-12.7 — the Blender goal is a requirement tree, and depth is derived
+
+The domain file used to describe eighteen flat statements whose depth was baked into the effect each one named
+(`emit-indented-assignment`, `emit-double-indented-api-call`, …). It now declares the shape:
+
+| Part | What it holds |
+| --- | --- |
+| `has-generation-step` | the six top-level requirements: two imports, three assignments, and the loop |
+| `step-has-body` | the steps a requirement opens, one level deeper, in declaration order |
+| `step-has-alternative-branch` | the branch that belongs to a requirement; it aligns with its owner the way an `else:` aligns with its `if`, and the branch's own body sits one deeper again |
+| effect labels | the family only: `emit import`, `emit string assignment`, `emit assignment`, `emit loop header`, `emit conditional header`, `emit continue`, `emit else`, `emit api call` |
+| responder | composes `emit-<depth word><family>` from where the step sits, up to the fourth level the packs spell |
+
+The resulting tree is the script: the loop holds the guard, five statements, the branch, and the removal; the guard
+holds the `continue`; the branch holds the nested loop; the branch's alternative holds the `else` marker, whose body
+holds the fallback link; the nested loop holds the collection link.
+
+Two consequences worth recording. The sixteen per-depth effect individuals are deleted — one family individual now
+serves every depth that has a name — so the step list and the script are byte-identical while the *evidence* changes:
+it cites `code-generation-emit-api-call` where it used to cite `code-generation-emit-triple-indented-api-call`. That
+is the one deliberate output change of this ticket. And the depth a step renders at is now inseparable from its
+position: a step moved into a different body renders at that body's indentation without any knowledge edit.
+
+Current counts after this segment: **21 sequence rules**, **241 input rules**, **30 validations**, **1 encoding**;
+the Python pack holds **104 productions**, **26 bindings**, **109 operations**, and **9 api expression formats**;
+the Blender domain file holds **117 concepts**, **11 relations**, and **240 relation assertions**, with **18 steps**,
+**10 API references**, and **7 lexemes**.
+
+## M-15 — acceptance, one gap found and narrowed, and the close
+
+Section 15 ran the acceptance checks. Two things came out of it.
+
+**A real gap, now closed.** The word-output family ("prints 'Ready'", "outputs Hello World", "sets total to 5 and
+prints 'Done'") was still emitted by `KnowledgeDrivenSequenceGenerator`: `SemanticProgramPlanner` declined any request
+carrying `program.output`, `program.output.start`, or `value.output`, so those facts never projected onto a
+requirement. `SemanticProgramFactMapper.TryProjectCapturedOutput` now projects the captured words onto an
+`OutputRequirement`, and only `program.arithmetic` and `value.output.expression` remain declared unmapped. The
+projection fires only when the request states nothing else — a declared loop, an arithmetic expression, or a typed
+output keeps its own path — which `PythonProgramGenerationTests.Generates_and_executes_composed_python_programs` and
+`GeneratedCollectionProgramExecutionTests` check.
+
+**The deliberate output change.** For that family the answer's meaning is now
+`semantic-requirements(write-standard-output)` instead of `semantic-facts(language.python, …)`: the answer comes from
+requirements, not from extracted fact ids. The generated code is unchanged, and the runtime fixtures now assert the
+requirement meaning (`KnowledgeDrivenGenerationRuntimeTests`, `LatticeRuntimeSessionTests`).
+
+**The recorded residual.** Loops (`program.range-loop`, `program.collection-loop`) and expression outputs
+(`value.output.expression`) still realize through the token-rule renderer. Its 21 rules are generic renderers with no
+task or benchmark identity, and `SequenceKnowledgeGuardTests` allows no multi-line rule, so the definition of done
+holds — the second language is only reachable through the planner — but the emitter count is not yet one. That slice
+is queue item 15.18.
+
+`docs/code-generation-acceptance.md` carries the full evidence: fixture families, guards, benchmark review, Release
+build, suite, external-tool runs, as-built path, and final counts.

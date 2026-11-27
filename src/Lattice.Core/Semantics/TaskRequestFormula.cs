@@ -10,4 +10,9 @@ public sealed record TaskRequestFormula(
     string? Scope,
     ImmutableArray<string> Requirements) : SemanticFormula
 {
+    /// <summary>
+    /// The request phrase as it was written, when the parse kept it. A task the knowledge models only through a
+    /// form with slots is recognised from this phrase; the normalised subject alone cannot carry its parts.
+    /// </summary>
+    public string? Phrase { get; init; }
 }

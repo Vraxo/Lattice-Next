@@ -243,6 +243,57 @@ internal static class SemanticWorldModelStructureLoader
         return true;
     }
 
+    /// <summary>
+    /// A form may declare named gaps. A `text` gap keeps the phrase as written; any other gap names a type the
+    /// captured phrase must resolve to, so the knowledge decides what a light kind or an object name is.
+    /// </summary>
+    private static bool TryCreateSlots(
+        SemanticWorldModelLoader.LexemeDocument item,
+        IReadOnlyDictionary<string, SemanticConcept> concepts,
+        out ImmutableArray<SemanticLexemeSlot> slots,
+        out string? error)
+    {
+        slots = ImmutableArray<SemanticLexemeSlot>.Empty;
+        error = null;
+        if (item.Slots is null)
+        {
+            return true;
+        }
+
+        if (item.Slots.Count > 8)
+        {
+            error = "A lexeme form declares at most eight slots.";
+            return false;
+        }
+
+        var builder = ImmutableArray.CreateBuilder<SemanticLexemeSlot>(item.Slots.Count);
+        var names = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var slot in item.Slots)
+        {
+            if (slot is null ||
+                string.IsNullOrWhiteSpace(slot.Name) ||
+                slot.Name.Length > 64 ||
+                !slot.Name.All(character =>
+                    char.IsAsciiLetterOrDigit(character) || character is '-' or '_') ||
+                !names.Add(slot.Name) ||
+                !item.Form.Contains("{" + slot.Name + "}", StringComparison.Ordinal) ||
+                !concepts.ContainsKey(slot.Concept) ||
+                string.IsNullOrWhiteSpace(slot.Kind) ||
+                (slot.Kind != TextSlotKind && !concepts.ContainsKey(slot.Kind)))
+            {
+                error = "Every lexeme slot requires a unique declared name, a marker in the form, a slot concept, and a kind.";
+                return false;
+            }
+
+            builder.Add(new SemanticLexemeSlot(slot.Name, slot.Concept, slot.Kind));
+        }
+
+        slots = builder.ToImmutable();
+        return true;
+    }
+
+    private const string TextSlotKind = "text";
+
     internal static bool TryCreateLexemes(
         SemanticWorldModelLoader.SemanticWorldModelDocument document,
         IReadOnlyDictionary<string, SemanticConcept> concepts,
@@ -268,7 +319,15 @@ internal static class SemanticWorldModelStructureLoader
                 return false;
             }
 
-            builder.Add(new SemanticLexeme(item.Form, item.Concept, item.PartOfSpeech));
+            if (!TryCreateSlots(item, concepts, out var slots, out error))
+            {
+                return false;
+            }
+
+            builder.Add(new SemanticLexeme(item.Form, item.Concept, item.PartOfSpeech)
+            {
+                Slots = slots
+            });
         }
 
         lexemes = builder.ToImmutable();
