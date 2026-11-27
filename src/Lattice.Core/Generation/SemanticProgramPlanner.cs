@@ -357,6 +357,13 @@ public static class SemanticProgramPlanner
                     }
 
                     break;
+                case WhileRequirement repetition:
+                    if (!TryPlanWhile(repetition, depth, defined, pack, pipeline, planned, out error))
+                    {
+                        return false;
+                    }
+
+                    break;
                 case IterationRequirement iteration:
                     if (!TryPlanIteration(iteration, depth, defined, pack, pipeline, planned, out error))
                     {
@@ -691,6 +698,65 @@ public static class SemanticProgramPlanner
             defined,
             planned,
             out error);
+    }
+
+    private static bool TryPlanWhile(
+        WhileRequirement repetition,
+        int depth,
+        HashSet<string> defined,
+        GenerationLanguagePack pack,
+        SequenceGenerationPipeline pipeline,
+        ImmutableArray<PlannedProgramStatement>.Builder planned,
+        out string? error)
+    {
+        error = null;
+        if (depth >= MaximumDepth - 1 || repetition.Body.IsDefaultOrEmpty)
+        {
+            error = "A while requirement needs a body within the supported nesting depth.";
+            return false;
+        }
+
+        if (!SemanticExpressionAnalysis.IsValid(repetition.Condition) ||
+            !SemanticValueKindAnalysis.IsCompatible(
+                SemanticValueKindAnalysis.Infer(repetition.Condition,
+                    ImmutableDictionary<string, SemanticValueKind>.Empty,
+                    ImmutableDictionary<string, SemanticValueKind>.Empty),
+                SemanticValueKind.Boolean))
+        {
+            error = "A while requirement needs a valid boolean condition.";
+            return false;
+        }
+
+        if (!TryRequireAvailable(repetition.Condition, defined, out error))
+        {
+            return false;
+        }
+
+        if (!SemanticExpressionRenderer.TryRender(repetition.Condition, pack, out var condition))
+        {
+            error = $"The '{pack.Language}' language pack cannot render a while condition.";
+            return false;
+        }
+
+        var effect = depth switch
+        {
+            0 => "emit-while-header",
+            1 => "emit-indented-while-header",
+            _ => "emit-double-indented-while-header"
+        };
+        var bindings = ImmutableDictionary<string, string>.Empty
+            .WithComparers(StringComparer.Ordinal).Add("condition", condition);
+        if (!TryEmit(pack, pipeline, effect, "condition", condition, bindings,
+                depth, defined, planned, out error))
+        {
+            return false;
+        }
+
+        // A pre-test loop may run zero times. Updates to existing bindings remain available,
+        // but names first introduced inside the body are not definite bindings after the loop.
+        var bodyDefined = new HashSet<string>(defined, StringComparer.Ordinal);
+        return TryPlanRequirements(repetition.Body, depth + 1, bodyDefined, pack, pipeline, planned, out error) &&
+            TryCloseBlock(depth + 1, pack, pipeline, planned, out error);
     }
 
     private static bool TryPlanIteration(
