@@ -1199,6 +1199,26 @@ public sealed class PythonProgramGenerationTests
         return string.Join(Environment.NewLine, lines[(start + 1)..end]);
     }
 
+    [Theory]
+    [InlineData("set", "print", "3", "4", "7")]
+    [InlineData("sets", "prints", "8", "5", "13")]
+    [InlineData("assign", "display", "2", "9", "11")]
+    [InlineData("assigns", "displays", "6", "10", "16")]
+    public async Task Generates_ordered_state_across_sentences(
+        string assignment, string output, string first, string second, string expected)
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+        var request = $"Write a Python program. {assignment} left to {first}. {assignment} right to {second}. " +
+            $"{assignment} total to left + right then {output} total.";
+        var result = await session.SubmitAsync(request);
+        var utterance = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, utterance.Kind);
+        var code = ExtractGeneratedPythonCode(utterance.Message!);
+        Assert.Equal($"left = {first}\nright = {second}\ntotal = left + right\nprint(total)".Replace("\n", Environment.NewLine, StringComparison.Ordinal), code);
+        await AssertPythonOutput(code, expected);
+    }
+
     private static async Task AssertPythonOutput(string code, string expectedOutput, string? inputFileName = null, string? inputFileContent = null, bool useTemporaryDirectory = false, bool createSampleDirectory = false, string? programArgument = null)
     {
         string? workingDirectory = null;
