@@ -100,7 +100,7 @@ public static class SequenceKnowledgeBaseLoader
             }
 
             using var reader = new StreamReader(stream);
-            if (!TryLoad(reader.ReadToEnd(), out var module, out error))
+            if (!TryLoad(reader.ReadToEnd(), out var module, out error) || module is null)
             {
                 return false;
             }

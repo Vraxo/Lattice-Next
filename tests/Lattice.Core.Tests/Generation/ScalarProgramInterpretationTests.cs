@@ -377,10 +377,12 @@ public sealed class ScalarProgramInterpretationTests
     {
         var knowledge = LoadKnowledge();
 
+        // The knowledge now stores input rules and validations only, so the retired family has nowhere
+        // left to live: no rule can capture it and no token rule can render it.
         Assert.DoesNotContain(knowledge.InputRules, rule =>
             rule.FactId.StartsWith("program.conditional-output", StringComparison.Ordinal));
-        Assert.DoesNotContain(knowledge.Rules, rule =>
-            rule.Id.Contains("conditional-output", StringComparison.Ordinal));
+        Assert.DoesNotContain(knowledge.Validations, validation =>
+            validation.Id.Contains("conditional-output", StringComparison.Ordinal));
 
         var facts = ExtractFacts("Create a Python program that prints 'adult' if 20 is at least 18.");
         Assert.DoesNotContain(facts, fact =>
