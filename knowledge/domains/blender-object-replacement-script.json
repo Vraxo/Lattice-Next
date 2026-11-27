@@ -154,51 +154,6 @@
       "kind": "Individual"
     },
     {
-      "id": "code-generation-emit-indented-conditional-header",
-      "label": "emit indented conditional header",
-      "kind": "Individual"
-    },
-    {
-      "id": "code-generation-emit-double-indented-continue",
-      "label": "emit double indented continue",
-      "kind": "Individual"
-    },
-    {
-      "id": "code-generation-emit-double-indented-assignment",
-      "label": "emit double indented assignment",
-      "kind": "Individual"
-    },
-    {
-      "id": "code-generation-emit-double-indented-conditional-header",
-      "label": "emit double indented conditional header",
-      "kind": "Individual"
-    },
-    {
-      "id": "code-generation-emit-double-indented-loop-header",
-      "label": "emit double indented loop header",
-      "kind": "Individual"
-    },
-    {
-      "id": "code-generation-emit-quadruple-indented-call",
-      "label": "emit quadruple indented call",
-      "kind": "Individual"
-    },
-    {
-      "id": "code-generation-emit-double-indented-else",
-      "label": "emit double indented else",
-      "kind": "Individual"
-    },
-    {
-      "id": "code-generation-emit-triple-indented-call",
-      "label": "emit triple indented call",
-      "kind": "Individual"
-    },
-    {
-      "id": "code-generation-emit-double-indented-call",
-      "label": "emit double indented call",
-      "kind": "Individual"
-    },
-    {
       "id": "code-generation-module-name",
       "label": "module name",
       "kind": "Individual"
@@ -574,41 +529,6 @@
       "kind": "Individual"
     },
     {
-      "id": "code-generation-emit-triple-indented-loop-header",
-      "label": "emit triple indented loop header",
-      "kind": "Individual"
-    },
-    {
-      "id": "code-generation-emit-indented-else",
-      "label": "emit indented else",
-      "kind": "Individual"
-    },
-    {
-      "id": "code-generation-emit-indented-assignment",
-      "label": "emit indented assignment",
-      "kind": "Individual"
-    },
-    {
-      "id": "code-generation-emit-indented-call",
-      "label": "emit indented call",
-      "kind": "Individual"
-    },
-    {
-      "id": "code-generation-emit-indented-api-call",
-      "kind": "Individual",
-      "label": "emit indented api call"
-    },
-    {
-      "id": "code-generation-emit-double-indented-api-call",
-      "kind": "Individual",
-      "label": "emit double indented api call"
-    },
-    {
-      "id": "code-generation-emit-triple-indented-api-call",
-      "kind": "Individual",
-      "label": "emit triple indented api call"
-    },
-    {
       "id": "code-generation-slot",
       "label": "code generation slot",
       "kind": "Type"
@@ -646,6 +566,26 @@
     {
       "id": "light-kind-area",
       "label": "AREA",
+      "kind": "Individual"
+    },
+    {
+      "id": "code-generation-emit-conditional-header",
+      "label": "emit conditional header",
+      "kind": "Individual"
+    },
+    {
+      "id": "code-generation-emit-continue",
+      "label": "emit continue",
+      "kind": "Individual"
+    },
+    {
+      "id": "code-generation-emit-else",
+      "label": "emit else",
+      "kind": "Individual"
+    },
+    {
+      "id": "code-generation-emit-api-call",
+      "label": "emit api call",
       "kind": "Individual"
     }
   ],
@@ -784,6 +724,26 @@
       "domain": "code-generation-binding-value",
       "range": "code-generation-slot",
       "verb": "is filled by",
+      "subjectKind": "Individual",
+      "objectKind": "Individual",
+      "order": 0,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "step-has-body",
+      "domain": "code-generation-step",
+      "range": "code-generation-step",
+      "verb": "has body step",
+      "subjectKind": "Individual",
+      "objectKind": "Individual",
+      "order": 0,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "step-has-alternative-branch",
+      "domain": "code-generation-step",
+      "range": "code-generation-step",
+      "verb": "has alternative branch",
       "subjectKind": "Individual",
       "objectKind": "Individual",
       "order": 0,
@@ -1010,51 +970,6 @@
       "object": "code-generation-effect"
     },
     {
-      "subject": "code-generation-emit-indented-conditional-header",
-      "relation": "instance-of",
-      "object": "code-generation-effect"
-    },
-    {
-      "subject": "code-generation-emit-double-indented-continue",
-      "relation": "instance-of",
-      "object": "code-generation-effect"
-    },
-    {
-      "subject": "code-generation-emit-double-indented-assignment",
-      "relation": "instance-of",
-      "object": "code-generation-effect"
-    },
-    {
-      "subject": "code-generation-emit-double-indented-conditional-header",
-      "relation": "instance-of",
-      "object": "code-generation-effect"
-    },
-    {
-      "subject": "code-generation-emit-double-indented-loop-header",
-      "relation": "instance-of",
-      "object": "code-generation-effect"
-    },
-    {
-      "subject": "code-generation-emit-quadruple-indented-call",
-      "relation": "instance-of",
-      "object": "code-generation-effect"
-    },
-    {
-      "subject": "code-generation-emit-double-indented-else",
-      "relation": "instance-of",
-      "object": "code-generation-effect"
-    },
-    {
-      "subject": "code-generation-emit-triple-indented-call",
-      "relation": "instance-of",
-      "object": "code-generation-effect"
-    },
-    {
-      "subject": "code-generation-emit-double-indented-call",
-      "relation": "instance-of",
-      "object": "code-generation-effect"
-    },
-    {
       "subject": "code-generation-module-name",
       "relation": "instance-of",
       "object": "code-generation-argument-kind"
@@ -1135,11 +1050,6 @@
       "object": "code-generation-step"
     },
     {
-      "subject": "replaces-all-of-objects-with-a-specific-name-with-a-point-light",
-      "relation": "has-generation-step",
-      "object": "step-import-bpy"
-    },
-    {
       "subject": "step-import-bpy",
       "relation": "step-has-generation-effect",
       "object": "code-generation-emit-import"
@@ -1170,11 +1080,6 @@
       "object": "binding-value-step-import-bpy-module"
     },
     {
-      "subject": "replaces-all-of-objects-with-a-specific-name-with-a-point-light",
-      "relation": "has-generation-step",
-      "object": "step-import-re"
-    },
-    {
       "subject": "step-import-re",
       "relation": "step-has-generation-effect",
       "object": "code-generation-emit-import"
@@ -1203,11 +1108,6 @@
       "subject": "binding-step-import-re-module",
       "relation": "binding-has-value",
       "object": "binding-value-step-import-re-module"
-    },
-    {
-      "subject": "replaces-all-of-objects-with-a-specific-name-with-a-point-light",
-      "relation": "has-generation-step",
-      "object": "step-set-target-name"
     },
     {
       "subject": "step-set-target-name",
@@ -1260,11 +1160,6 @@
       "object": "binding-value-step-set-target-name-string-value"
     },
     {
-      "subject": "replaces-all-of-objects-with-a-specific-name-with-a-point-light",
-      "relation": "has-generation-step",
-      "object": "step-build-name-pattern"
-    },
-    {
       "subject": "step-build-name-pattern",
       "relation": "step-has-generation-effect",
       "object": "code-generation-emit-assignment"
@@ -1313,11 +1208,6 @@
       "subject": "binding-step-build-name-pattern-expression",
       "relation": "binding-has-value",
       "object": "binding-value-step-build-name-pattern-expression"
-    },
-    {
-      "subject": "replaces-all-of-objects-with-a-specific-name-with-a-point-light",
-      "relation": "has-generation-step",
-      "object": "step-snapshot-objects"
     },
     {
       "subject": "step-snapshot-objects",
@@ -1370,11 +1260,6 @@
       "object": "binding-value-step-snapshot-objects-expression"
     },
     {
-      "subject": "replaces-all-of-objects-with-a-specific-name-with-a-point-light",
-      "relation": "has-generation-step",
-      "object": "step-iterate-objects"
-    },
-    {
       "subject": "step-iterate-objects",
       "relation": "step-has-generation-effect",
       "object": "code-generation-emit-loop-header"
@@ -1425,14 +1310,9 @@
       "object": "binding-value-step-iterate-objects-iterable"
     },
     {
-      "subject": "replaces-all-of-objects-with-a-specific-name-with-a-point-light",
-      "relation": "has-generation-step",
-      "object": "step-match-name"
-    },
-    {
       "subject": "step-match-name",
       "relation": "step-has-generation-effect",
-      "object": "code-generation-emit-indented-conditional-header"
+      "object": "code-generation-emit-conditional-header"
     },
     {
       "subject": "step-match-name",
@@ -1460,24 +1340,14 @@
       "object": "binding-value-step-match-name-condition"
     },
     {
-      "subject": "replaces-all-of-objects-with-a-specific-name-with-a-point-light",
-      "relation": "has-generation-step",
-      "object": "step-continue-nonmatch"
-    },
-    {
       "subject": "step-continue-nonmatch",
       "relation": "step-has-generation-effect",
-      "object": "code-generation-emit-double-indented-continue"
+      "object": "code-generation-emit-continue"
     },
     {
       "subject": "step-continue-nonmatch",
       "relation": "step-has-argument-kind",
       "object": "code-generation-none"
-    },
-    {
-      "subject": "replaces-all-of-objects-with-a-specific-name-with-a-point-light",
-      "relation": "has-generation-step",
-      "object": "step-create-light-data"
     },
     {
       "subject": "step-create-light-data",
@@ -1525,11 +1395,6 @@
       "object": "binding-value-step-create-light-data-expression"
     },
     {
-      "subject": "replaces-all-of-objects-with-a-specific-name-with-a-point-light",
-      "relation": "has-generation-step",
-      "object": "step-create-light-object"
-    },
-    {
       "subject": "step-create-light-object",
       "relation": "step-has-argument-kind",
       "object": "code-generation-assignment"
@@ -1573,11 +1438,6 @@
       "subject": "binding-step-create-light-object-expression",
       "relation": "binding-has-value",
       "object": "binding-value-step-create-light-object-expression"
-    },
-    {
-      "subject": "replaces-all-of-objects-with-a-specific-name-with-a-point-light",
-      "relation": "has-generation-step",
-      "object": "step-copy-world-position"
     },
     {
       "subject": "step-copy-world-position",
@@ -1625,11 +1485,6 @@
       "object": "binding-value-step-copy-world-position-expression"
     },
     {
-      "subject": "replaces-all-of-objects-with-a-specific-name-with-a-point-light",
-      "relation": "has-generation-step",
-      "object": "step-snapshot-collections"
-    },
-    {
       "subject": "step-snapshot-collections",
       "relation": "step-has-argument-kind",
       "object": "code-generation-assignment"
@@ -1675,11 +1530,6 @@
       "object": "binding-value-step-snapshot-collections-expression"
     },
     {
-      "subject": "replaces-all-of-objects-with-a-specific-name-with-a-point-light",
-      "relation": "has-generation-step",
-      "object": "step-check-collections"
-    },
-    {
       "subject": "step-check-collections",
       "relation": "step-has-argument-kind",
       "object": "code-generation-condition"
@@ -1703,11 +1553,6 @@
       "subject": "binding-step-check-collections-condition",
       "relation": "binding-has-value",
       "object": "binding-value-step-check-collections-condition"
-    },
-    {
-      "subject": "replaces-all-of-objects-with-a-specific-name-with-a-point-light",
-      "relation": "has-generation-step",
-      "object": "step-iterate-collections"
     },
     {
       "subject": "step-iterate-collections",
@@ -1755,11 +1600,6 @@
       "object": "binding-value-step-iterate-collections-iterable"
     },
     {
-      "subject": "replaces-all-of-objects-with-a-specific-name-with-a-point-light",
-      "relation": "has-generation-step",
-      "object": "step-link-collections"
-    },
-    {
       "subject": "step-link-collections",
       "relation": "step-has-argument-kind",
       "object": "code-generation-call"
@@ -1805,19 +1645,9 @@
       "object": "binding-value-step-link-collections-arguments"
     },
     {
-      "subject": "replaces-all-of-objects-with-a-specific-name-with-a-point-light",
-      "relation": "has-generation-step",
-      "object": "step-else"
-    },
-    {
       "subject": "step-else",
       "relation": "step-has-argument-kind",
       "object": "code-generation-none"
-    },
-    {
-      "subject": "replaces-all-of-objects-with-a-specific-name-with-a-point-light",
-      "relation": "has-generation-step",
-      "object": "step-fallback-link"
     },
     {
       "subject": "step-fallback-link",
@@ -1863,11 +1693,6 @@
       "subject": "binding-step-fallback-link-arguments",
       "relation": "binding-has-value",
       "object": "binding-value-step-fallback-link-arguments"
-    },
-    {
-      "subject": "replaces-all-of-objects-with-a-specific-name-with-a-point-light",
-      "relation": "has-generation-step",
-      "object": "step-remove-original"
     },
     {
       "subject": "step-remove-original",
@@ -1990,94 +1815,59 @@
       "object": "api-object-removal"
     },
     {
-      "subject": "code-generation-emit-triple-indented-loop-header",
-      "relation": "instance-of",
-      "object": "code-generation-effect"
-    },
-    {
-      "subject": "code-generation-emit-indented-else",
-      "relation": "instance-of",
-      "object": "code-generation-effect"
-    },
-    {
       "subject": "step-create-light-data",
       "relation": "step-has-generation-effect",
-      "object": "code-generation-emit-indented-assignment"
+      "object": "code-generation-emit-assignment"
     },
     {
       "subject": "step-create-light-object",
       "relation": "step-has-generation-effect",
-      "object": "code-generation-emit-indented-assignment"
+      "object": "code-generation-emit-assignment"
     },
     {
       "subject": "step-copy-world-position",
       "relation": "step-has-generation-effect",
-      "object": "code-generation-emit-indented-assignment"
+      "object": "code-generation-emit-assignment"
     },
     {
       "subject": "step-snapshot-collections",
       "relation": "step-has-generation-effect",
-      "object": "code-generation-emit-indented-assignment"
+      "object": "code-generation-emit-assignment"
     },
     {
       "subject": "step-check-collections",
       "relation": "step-has-generation-effect",
-      "object": "code-generation-emit-indented-conditional-header"
+      "object": "code-generation-emit-conditional-header"
     },
     {
       "subject": "step-link-collections",
       "relation": "step-has-generation-effect",
-      "object": "code-generation-emit-triple-indented-api-call"
+      "object": "code-generation-emit-api-call"
     },
     {
       "subject": "step-else",
       "relation": "step-has-generation-effect",
-      "object": "code-generation-emit-indented-else"
+      "object": "code-generation-emit-else"
     },
     {
       "subject": "step-fallback-link",
       "relation": "step-has-generation-effect",
-      "object": "code-generation-emit-double-indented-api-call"
-    },
-    {
-      "subject": "code-generation-emit-indented-assignment",
-      "relation": "instance-of",
-      "object": "code-generation-effect"
+      "object": "code-generation-emit-api-call"
     },
     {
       "subject": "step-iterate-collections",
       "relation": "step-has-generation-effect",
-      "object": "code-generation-emit-double-indented-loop-header"
-    },
-    {
-      "subject": "code-generation-emit-indented-call",
-      "relation": "instance-of",
-      "object": "code-generation-effect"
+      "object": "code-generation-emit-loop-header"
     },
     {
       "subject": "step-remove-original",
       "relation": "step-has-generation-effect",
-      "object": "code-generation-emit-indented-api-call"
+      "object": "code-generation-emit-api-call"
     },
     {
       "subject": "blender",
       "relation": "application-uses-language",
       "object": "python"
-    },
-    {
-      "subject": "code-generation-emit-indented-api-call",
-      "relation": "instance-of",
-      "object": "code-generation-effect"
-    },
-    {
-      "subject": "code-generation-emit-double-indented-api-call",
-      "relation": "instance-of",
-      "object": "code-generation-effect"
-    },
-    {
-      "subject": "code-generation-emit-triple-indented-api-call",
-      "relation": "instance-of",
-      "object": "code-generation-effect"
     },
     {
       "subject": "slot-object-name",
@@ -2118,6 +1908,116 @@
       "subject": "binding-value-step-create-light-data-expression",
       "relation": "binding-value-has-slot",
       "object": "slot-light-kind"
+    },
+    {
+      "subject": "code-generation-emit-conditional-header",
+      "relation": "instance-of",
+      "object": "code-generation-effect"
+    },
+    {
+      "subject": "code-generation-emit-continue",
+      "relation": "instance-of",
+      "object": "code-generation-effect"
+    },
+    {
+      "subject": "code-generation-emit-else",
+      "relation": "instance-of",
+      "object": "code-generation-effect"
+    },
+    {
+      "subject": "code-generation-emit-api-call",
+      "relation": "instance-of",
+      "object": "code-generation-effect"
+    },
+    {
+      "subject": "replaces-all-of-objects-with-a-specific-name-with-a-point-light",
+      "relation": "has-generation-step",
+      "object": "step-import-bpy"
+    },
+    {
+      "subject": "replaces-all-of-objects-with-a-specific-name-with-a-point-light",
+      "relation": "has-generation-step",
+      "object": "step-import-re"
+    },
+    {
+      "subject": "replaces-all-of-objects-with-a-specific-name-with-a-point-light",
+      "relation": "has-generation-step",
+      "object": "step-set-target-name"
+    },
+    {
+      "subject": "replaces-all-of-objects-with-a-specific-name-with-a-point-light",
+      "relation": "has-generation-step",
+      "object": "step-build-name-pattern"
+    },
+    {
+      "subject": "replaces-all-of-objects-with-a-specific-name-with-a-point-light",
+      "relation": "has-generation-step",
+      "object": "step-snapshot-objects"
+    },
+    {
+      "subject": "replaces-all-of-objects-with-a-specific-name-with-a-point-light",
+      "relation": "has-generation-step",
+      "object": "step-iterate-objects"
+    },
+    {
+      "subject": "step-iterate-objects",
+      "relation": "step-has-body",
+      "object": "step-match-name"
+    },
+    {
+      "subject": "step-iterate-objects",
+      "relation": "step-has-body",
+      "object": "step-create-light-data"
+    },
+    {
+      "subject": "step-iterate-objects",
+      "relation": "step-has-body",
+      "object": "step-create-light-object"
+    },
+    {
+      "subject": "step-iterate-objects",
+      "relation": "step-has-body",
+      "object": "step-copy-world-position"
+    },
+    {
+      "subject": "step-iterate-objects",
+      "relation": "step-has-body",
+      "object": "step-snapshot-collections"
+    },
+    {
+      "subject": "step-iterate-objects",
+      "relation": "step-has-body",
+      "object": "step-check-collections"
+    },
+    {
+      "subject": "step-iterate-objects",
+      "relation": "step-has-body",
+      "object": "step-remove-original"
+    },
+    {
+      "subject": "step-match-name",
+      "relation": "step-has-body",
+      "object": "step-continue-nonmatch"
+    },
+    {
+      "subject": "step-check-collections",
+      "relation": "step-has-body",
+      "object": "step-iterate-collections"
+    },
+    {
+      "subject": "step-check-collections",
+      "relation": "step-has-alternative-branch",
+      "object": "step-else"
+    },
+    {
+      "subject": "step-else",
+      "relation": "step-has-body",
+      "object": "step-fallback-link"
+    },
+    {
+      "subject": "step-iterate-collections",
+      "relation": "step-has-body",
+      "object": "step-link-collections"
     }
   ],
   "dataProperties": [],

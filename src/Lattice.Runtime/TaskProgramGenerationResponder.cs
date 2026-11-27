@@ -65,22 +65,10 @@ internal static class TaskProgramGenerationResponder
             return false;
         }
 
-        // The knowledge decides the order: the steps are planned in the order its has-generation-step
-        // assertions declare them, so no stored sequence number has to agree with the declarations.
-        var stepAssertions = reasoner.GetRelations(task.Id, "has-generation-step");
-        var steps = stepAssertions
-            .Select(assertion => new
-            {
-                Assertion = assertion,
-                Step = model.FindConcept(assertion.Object, SemanticConceptKind.Individual)
-            })
-            .Where(item => item.Step is not null)
-            .Select(item => new { item.Assertion, Step = item.Step! })
-            .ToArray();
-
-        if (steps.Length == 0 ||
-            steps.Length != stepAssertions.Length ||
-            steps.Select(step => step.Step.Id).Distinct(StringComparer.Ordinal).Count() != steps.Length)
+        // The knowledge decides the shape and the order: a step's body is rendered one level deeper, and an
+        // alternative branch follows the body it belongs to, so the depth is derived from where a step sits
+        // rather than spelled into the effect it names.
+        if (!TryReadSteps(model, reasoner, task.Id, "has-generation-step", out var steps) || steps.Length == 0)
         {
             return false;
         }
@@ -92,10 +80,154 @@ internal static class TaskProgramGenerationResponder
         sources.AddRange(reasoner.GetMembershipEvidence(language.Id, "programming-language"));
         sources.Add(languageAssertion!.Source);
 
-        foreach (var step in steps)
+        var seenSteps = new HashSet<string>(StringComparer.Ordinal);
+        if (!TryAddSteps(model, reasoner, steps, 0, slotValues, goals, sources, seenSteps))
         {
-            var effectAssertions = reasoner.GetRelations(step!.Step.Id, "step-has-generation-effect");
-            var argumentKindAssertions = reasoner.GetRelations(step.Step.Id, "step-has-argument-kind");
+            return false;
+        }
+
+        var loader = new GenerationLanguagePackLoader();
+        if (!loader.TryLoadEmbedded(out var packs, out var loadError))
+        {
+            return false;
+        }
+        if (!packs.TryGetValue(language.Id, out var pack))
+        {
+            return false;
+        }
+        if (!new SequenceGenerationPipeline().TryGenerateProgram(
+                pack,
+                goals.ToImmutable(),
+                out var program,
+                out var generationError))
+        {
+            return false;
+        }
+
+        var safetyNotes = reasoner.GetRelations(task.Id, "code-generation-task-has-safety-note")
+            .Select(assertion => new
+            {
+                Assertion = assertion,
+                Note = model.FindConcept(assertion.Object, SemanticConceptKind.Individual)
+            })
+            .Where(item => item.Note is not null)
+            .ToArray();
+        if (safetyNotes.Any(item => !reasoner.IsInstanceOf(item.Note!.Id, "code-generation-safety-note")))
+        {
+            return false;
+        }
+
+        var fence = new string((char)96, 3);
+        var messageLines = new List<string>
+        {
+            $"## {task.Label}",
+            "### Script",
+            fence + language.Id,
+            program!.Text,
+            fence,
+            "### Steps"
+        };
+        // Every realized goal names the step it came from, so the list follows the knowledge's order and depth.
+        messageLines.AddRange(goals.Select(goal => $"- {goal.ArgumentValue}"));
+        if (safetyNotes.Length > 0)
+        {
+            messageLines.Add("### Safety");
+            messageLines.AddRange(safetyNotes.Select(item => $"- {item.Note!.Label}"));
+            sources.AddRange(safetyNotes.Select(item => item.Assertion.Source));
+            sources.AddRange(safetyNotes.SelectMany(item =>
+                reasoner.GetMembershipEvidence(item.Note!.Id, "code-generation-safety-note")));
+        }
+
+        message = string.Join(Environment.NewLine, messageLines);
+        evidence = ImmutableArray.Create(new LatticeEvidence(
+            LatticeEvidenceKind.Derived,
+            LatticeEvidencePolarity.Positive,
+            sources
+                .DistinctBy(source => source.SourceId)
+                .Select(ToEvidenceSource)
+                .ToImmutableArray(),
+            ImmutableArray<LatticeEvidence>.Empty));
+        return true;
+    }
+
+    /// <summary>The deepest block the language packs spell is the fourth level, so the root may nest four deep.</summary>
+    private const int MaximumStepDepth = 4;
+
+    /// <summary>
+    /// Reads one ordered list of steps from a relation. The order is the order the assertions declare them in,
+    /// so no stored sequence number has to agree with the declarations.
+    /// </summary>
+    private static bool TryReadSteps(
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
+        string subject,
+        string relation,
+        out ImmutableArray<(SemanticRelationAssertion Assertion, SemanticConcept Step)> steps)
+    {
+        var assertions = reasoner.GetRelations(subject, relation);
+        var builder = ImmutableArray.CreateBuilder<(SemanticRelationAssertion Assertion, SemanticConcept Step)>(
+            assertions.Length);
+        foreach (var assertion in assertions)
+        {
+            var step = model.FindConcept(assertion.Object, SemanticConceptKind.Individual);
+            if (step is null)
+            {
+                steps = ImmutableArray<(SemanticRelationAssertion Assertion, SemanticConcept Step)>.Empty;
+                return false;
+            }
+
+            builder.Add((assertion, step));
+        }
+
+        steps = builder.ToImmutable();
+        return true;
+    }
+
+    /// <summary>
+    /// Adds one listed level of steps, then each step's body and its alternative branch one level deeper. A step
+    /// names the family of the effect it wants; the block it sits in is what makes that effect indented, so the
+    /// knowledge never spells a depth and the same family serves every depth that has one.
+    /// </summary>
+    private static bool TryAddSteps(
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
+        ImmutableArray<(SemanticRelationAssertion Assertion, SemanticConcept Step)> steps,
+        int depth,
+        ImmutableDictionary<string, string> slotValues,
+        ImmutableArray<GenerationGoal>.Builder goals,
+        List<SemanticWorldModelSource> sources,
+        HashSet<string> seen)
+    {
+        // A body that renders nothing cannot run out of depth: only a step that is actually emitted needs one.
+        if (steps.IsDefaultOrEmpty)
+        {
+            return true;
+        }
+
+        const string familyPrefix = "emit-";
+        var depthWord = depth switch
+        {
+            0 => string.Empty,
+            1 => "indented-",
+            2 => "double-indented-",
+            3 => "triple-indented-",
+            _ => null
+        };
+
+        if (depthWord is null || depth >= MaximumStepDepth)
+        {
+            return false;
+        }
+
+        foreach (var (assertion, step) in steps)
+        {
+            if (!seen.Add(step.Id))
+            {
+                return false;
+            }
+
+            var effectAssertions = reasoner.GetRelations(step.Id, "step-has-generation-effect");
+            var argumentKindAssertions = reasoner.GetRelations(step.Id, "step-has-argument-kind");
             var effectAssertion = effectAssertions.Length == 1 ? effectAssertions[0] : null;
             var argumentKindAssertion = argumentKindAssertions.Length == 1 ? argumentKindAssertions[0] : null;
             var effect = effectAssertion is null
@@ -111,8 +243,14 @@ internal static class TaskProgramGenerationResponder
                 return false;
             }
 
+            var family = SemanticWorldModel.Normalize(effect.Label);
+            if (!family.StartsWith(familyPrefix, StringComparison.Ordinal) || family.Length == familyPrefix.Length)
+            {
+                return false;
+            }
+
             var bindings = ImmutableDictionary.CreateBuilder<string, string>(StringComparer.Ordinal);
-            foreach (var bindingAssertion in reasoner.GetRelations(step.Step.Id, "step-has-binding"))
+            foreach (var bindingAssertion in reasoner.GetRelations(step.Id, "step-has-binding"))
             {
                 var binding = model.FindConcept(bindingAssertion.Object, SemanticConceptKind.Individual);
                 var valueAssertions = binding is null
@@ -157,7 +295,7 @@ internal static class TaskProgramGenerationResponder
             // The API contracts this step reaches become the goal's capabilities, so only a pack operation
             // that declares the same contract can realize the step.
             var capabilities = ImmutableArray.CreateBuilder<string>();
-            foreach (var apiAssertion in reasoner.GetRelations(step.Step.Id, "step-references-api"))
+            foreach (var apiAssertion in reasoner.GetRelations(step.Id, "step-references-api"))
             {
                 var api = model.FindConcept(apiAssertion.Object, SemanticConceptKind.Individual);
                 if (api is null || !reasoner.IsInstanceOf(api.Id, "application-programming-interface"))
@@ -171,83 +309,36 @@ internal static class TaskProgramGenerationResponder
             }
 
             goals.Add(new GenerationGoal(
-                SemanticWorldModel.Normalize(effect.Label),
+                familyPrefix + depthWord + family[familyPrefix.Length..],
                 SemanticWorldModel.Normalize(argumentKind.Label),
-                step.Step.Label,
+                step.Label,
                 capabilities.ToImmutable())
             {
                 Bindings = bindings.ToImmutable()
             });
 
-            sources.Add(step.Assertion.Source);
+            sources.Add(assertion.Source);
             sources.Add(effectAssertion!.Source);
             sources.Add(argumentKindAssertion!.Source);
-            sources.AddRange(reasoner.GetMembershipEvidence(step.Step.Id, "code-generation-step"));
+            sources.AddRange(reasoner.GetMembershipEvidence(step.Id, "code-generation-step"));
             sources.AddRange(reasoner.GetMembershipEvidence(effect.Id, "code-generation-effect"));
             sources.AddRange(reasoner.GetMembershipEvidence(argumentKind.Id, "code-generation-argument-kind"));
 
-        }
-
-        var loader = new GenerationLanguagePackLoader();
-        if (!loader.TryLoadEmbedded(out var packs, out var loadError))
-        {
-            return false;
-        }
-        if (!packs.TryGetValue(language.Id, out var pack))
-        {
-            return false;
-        }
-        if (!new SequenceGenerationPipeline().TryGenerateProgram(
-                pack,
-                goals.ToImmutable(),
-                out var program,
-                out var generationError))
-        {
-            return false;
-        }
-
-        var safetyNotes = reasoner.GetRelations(task.Id, "code-generation-task-has-safety-note")
-            .Select(assertion => new
+            if (!TryReadSteps(model, reasoner, step.Id, "step-has-body", out var body) ||
+                !TryAddSteps(model, reasoner, body, depth + 1, slotValues, goals, sources, seen))
             {
-                Assertion = assertion,
-                Note = model.FindConcept(assertion.Object, SemanticConceptKind.Individual)
-            })
-            .Where(item => item.Note is not null)
-            .ToArray();
-        if (safetyNotes.Any(item => !reasoner.IsInstanceOf(item.Note!.Id, "code-generation-safety-note")))
-        {
-            return false;
+                return false;
+            }
+
+            // An alternative branch aligns with the step that owns it, the way an else keyword aligns with its
+            // if, and the branch's own body is one level deeper than the branch keyword.
+            if (!TryReadSteps(model, reasoner, step.Id, "step-has-alternative-branch", out var alternative) ||
+                !TryAddSteps(model, reasoner, alternative, depth, slotValues, goals, sources, seen))
+            {
+                return false;
+            }
         }
 
-        var fence = new string((char)96, 3);
-        var messageLines = new List<string>
-        {
-            $"## {task.Label}",
-            "### Script",
-            fence + language.Id,
-            program!.Text,
-            fence,
-            "### Steps"
-        };
-        messageLines.AddRange(steps.Select(step => $"- {step!.Step.Label}"));
-        if (safetyNotes.Length > 0)
-        {
-            messageLines.Add("### Safety");
-            messageLines.AddRange(safetyNotes.Select(item => $"- {item.Note!.Label}"));
-            sources.AddRange(safetyNotes.Select(item => item.Assertion.Source));
-            sources.AddRange(safetyNotes.SelectMany(item =>
-                reasoner.GetMembershipEvidence(item.Note!.Id, "code-generation-safety-note")));
-        }
-
-        message = string.Join(Environment.NewLine, messageLines);
-        evidence = ImmutableArray.Create(new LatticeEvidence(
-            LatticeEvidenceKind.Derived,
-            LatticeEvidencePolarity.Positive,
-            sources
-                .DistinctBy(source => source.SourceId)
-                .Select(ToEvidenceSource)
-                .ToImmutableArray(),
-            ImmutableArray<LatticeEvidence>.Empty));
         return true;
     }
 

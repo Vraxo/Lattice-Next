@@ -1424,3 +1424,31 @@ light" and asserts `target_name = "Cube"` and `type="SUN"`, that neither declare
 `POINT`) survives in the answer, and that the lines the slots do not touch — the compiled name pattern and the
 removal call — are still the knowledge's own text. The companion test refuses "a strobe light", so an undeclared
 kind cannot reach the script.
+
+## M-12.7 — the Blender goal is a requirement tree, and depth is derived
+
+The domain file used to describe eighteen flat statements whose depth was baked into the effect each one named
+(`emit-indented-assignment`, `emit-double-indented-api-call`, …). It now declares the shape:
+
+| Part | What it holds |
+| --- | --- |
+| `has-generation-step` | the six top-level requirements: two imports, three assignments, and the loop |
+| `step-has-body` | the steps a requirement opens, one level deeper, in declaration order |
+| `step-has-alternative-branch` | the branch that belongs to a requirement; it aligns with its owner the way an `else:` aligns with its `if`, and the branch's own body sits one deeper again |
+| effect labels | the family only: `emit import`, `emit string assignment`, `emit assignment`, `emit loop header`, `emit conditional header`, `emit continue`, `emit else`, `emit api call` |
+| responder | composes `emit-<depth word><family>` from where the step sits, up to the fourth level the packs spell |
+
+The resulting tree is the script: the loop holds the guard, five statements, the branch, and the removal; the guard
+holds the `continue`; the branch holds the nested loop; the branch's alternative holds the `else` marker, whose body
+holds the fallback link; the nested loop holds the collection link.
+
+Two consequences worth recording. The sixteen per-depth effect individuals are deleted — one family individual now
+serves every depth that has a name — so the step list and the script are byte-identical while the *evidence* changes:
+it cites `code-generation-emit-api-call` where it used to cite `code-generation-emit-triple-indented-api-call`. That
+is the one deliberate output change of this ticket. And the depth a step renders at is now inseparable from its
+position: a step moved into a different body renders at that body's indentation without any knowledge edit.
+
+Current counts after this segment: **21 sequence rules**, **241 input rules**, **30 validations**, **1 encoding**;
+the Python pack holds **104 productions**, **26 bindings**, **109 operations**, and **9 api expression formats**;
+the Blender domain file holds **117 concepts**, **11 relations**, and **240 relation assertions**, with **18 steps**,
+**10 API references**, and **7 lexemes**.
