@@ -31,7 +31,7 @@ The result must be genuinely playable: a game window, two controllable paddles, 
 
 **Section exit:** The exact game request, target runtime, test method, and actual implementation gaps are known. No speculative framework or duplicate abstraction has been added.
 
-**Result:** Pending.
+**Result:** Baseline prepared in `docs/pong-acceptance.md`: frozen request, requirement trace, and pinned headless Pygame probe. Local probe passes; PR #597 CI passed the Release build, full .NET suite, and Python checks. Merge remains pending because GitHub rejected auto-merge enrollment (initially unstable, then clean status). Sentence-scoped extraction is an additional Section 4 gap; the earlier 17-rule diagnostic was invalid.
 
 ## 2. Add reusable continuous-loop semantics
 

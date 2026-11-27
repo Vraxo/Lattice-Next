@@ -20,3 +20,8 @@ TestResults/
 
 # Local Lattice configuration
 /lattice.config.json
+
+# Python test environment and bytecode
+/.venv-test/
+__pycache__/
+*.pyc
