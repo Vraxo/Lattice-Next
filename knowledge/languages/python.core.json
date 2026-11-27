@@ -3900,6 +3900,116 @@
     {
       "contract": "blender-api-scene-collection-link",
       "format": "bpy.context.scene.collection.objects.link"
+    },
+    {
+      "contract": "pygame-init",
+      "format": "pygame.init()",
+      "argumentCount": 0
+    },
+    {
+      "contract": "pygame-quit",
+      "format": "pygame.quit()",
+      "argumentCount": 0
+    },
+    {
+      "contract": "pygame-window",
+      "format": "pygame.display.set_mode({0})",
+      "argumentCount": 1
+    },
+    {
+      "contract": "pygame-clock",
+      "format": "pygame.time.Clock()",
+      "argumentCount": 0
+    },
+    {
+      "contract": "pygame-events",
+      "format": "pygame.event.get()",
+      "argumentCount": 0
+    },
+    {
+      "contract": "pygame-quit-event",
+      "format": "pygame.QUIT",
+      "argumentCount": 0
+    },
+    {
+      "contract": "pygame-event-type",
+      "format": "({0}).type",
+      "argumentCount": 1
+    },
+    {
+      "contract": "pygame-event",
+      "format": "pygame.event.Event({0})",
+      "argumentCount": 1
+    },
+    {
+      "contract": "pygame-post-event",
+      "format": "pygame.event.post({0})",
+      "argumentCount": 1
+    },
+    {
+      "contract": "pygame-keys",
+      "format": "pygame.key.get_pressed()",
+      "argumentCount": 0
+    },
+    {
+      "contract": "pygame-key-w",
+      "format": "pygame.K_w",
+      "argumentCount": 0
+    },
+    {
+      "contract": "pygame-key-s",
+      "format": "pygame.K_s",
+      "argumentCount": 0
+    },
+    {
+      "contract": "pygame-key-up",
+      "format": "pygame.K_UP",
+      "argumentCount": 0
+    },
+    {
+      "contract": "pygame-key-down",
+      "format": "pygame.K_DOWN",
+      "argumentCount": 0
+    },
+    {
+      "contract": "pygame-surface-fill",
+      "format": "({0}).fill({1})",
+      "argumentCount": 2
+    },
+    {
+      "contract": "pygame-draw-rectangle",
+      "format": "pygame.draw.rect({0}, {1}, {2})",
+      "argumentCount": 3
+    },
+    {
+      "contract": "pygame-draw-circle",
+      "format": "pygame.draw.circle({0}, {1}, {2}, {3})",
+      "argumentCount": 4
+    },
+    {
+      "contract": "pygame-draw-line",
+      "format": "pygame.draw.line({0}, {1}, {2}, {3}, {4})",
+      "argumentCount": 5
+    },
+    {
+      "contract": "pygame-present",
+      "format": "pygame.display.flip()",
+      "argumentCount": 0
+    },
+    {
+      "contract": "pygame-tick",
+      "format": "({0}).tick({1})",
+      "argumentCount": 2
+    },
+    {
+      "contract": "pygame-surface-size",
+      "format": "({0}).get_size()",
+      "argumentCount": 1
+    },
+    {
+      "contract": "pygame-surface-pixel",
+      "format": "({0}).get_at({1})",
+      "argumentCount": 2
     }
   ]
 }
