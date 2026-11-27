@@ -25,13 +25,13 @@ The result must be genuinely playable: a game window, two controllable paddles, 
 
 ## 1. Freeze the target and establish the baseline
 
-- [ ] Write one canonical natural-language acceptance request for Pong, including the gameplay and controls the generated program must implement. Keep it as a user request, not pseudocode or a list of Python statements.
-- [ ] Verify that the chosen Python/Pygame runtime can be installed and executed in the automated test environment, including a headless display mode. Make the test setup reproducible.
-- [ ] Trace each requirement in the acceptance request through the existing request extractor, semantic model, validator, planner, Python pack, and API knowledge. Record only the capabilities that are genuinely missing; explicitly mark existing capabilities for reuse.
+- [x] Write one canonical natural-language acceptance request for Pong, including the gameplay and controls the generated program must implement. Keep it as a user request, not pseudocode or a list of Python statements.
+- [x] Verify that the chosen Python/Pygame runtime can be installed and executed in the automated test environment, including a headless display mode. Make the test setup reproducible.
+- [x] Trace each requirement in the acceptance request through the existing request extractor, semantic model, validator, planner, Python pack, and API knowledge. Record only the capabilities that are genuinely missing; explicitly mark existing capabilities for reuse.
 
 **Section exit:** The exact game request, target runtime, test method, and actual implementation gaps are known. No speculative framework or duplicate abstraction has been added.
 
-**Result:** Baseline prepared in `docs/pong-acceptance.md`: frozen request, requirement trace, and pinned headless Pygame probe. Local probe passes; PR #597 CI passed the Release build, full .NET suite, and Python checks. Merge remains pending because GitHub rejected auto-merge enrollment (initially unstable, then clean status). Sentence-scoped extraction is an additional Section 4 gap; the earlier 17-rule diagnostic was invalid.
+**Result:** PR #597 merged: frozen request and reuse/gap trace recorded; pinned headless Pygame probe, Release build, and full .NET/Python checks passed CI. Generic sentence traversal remains a Section 4 gap.
 
 ## 2. Add reusable continuous-loop semantics
 
@@ -44,7 +44,7 @@ The result must be genuinely playable: a game window, two controllable paddles, 
 
 **Section exit:** Lattice can interpret, plan, generate, and execute a generic while-loop with request-derived values and nested statements.
 
-**Result:** Pending.
+**Result:** In progress: while requirement and structural validation prepared with focused tests. Planning, bound-name/dependency checks, pack realization, request capture, and execution proof remain pending; no generation capability is claimed yet.
 
 ## 3. Make external API calls composable values
 

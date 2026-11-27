@@ -100,6 +100,13 @@ public static class SemanticProgramValidator
             OutputRequirement output =>
                 SemanticExpressionAnalysis.IsValid(output.Value) &&
                 IsValidDeclaredCall(output.Value, context),
+            WhileRequirement repetition =>
+                SemanticExpressionAnalysis.IsValid(repetition.Condition) &&
+                SemanticValueKindAnalysis.IsCompatible(
+                    SemanticValueKindAnalysis.Infer(repetition.Condition, context.Names, context.FunctionResults),
+                    SemanticValueKind.Boolean) &&
+                !repetition.Body.IsDefaultOrEmpty &&
+                AreValid(repetition.Body, depth + 1, context with { InsideIteration = true }),
             ConditionalRequirement conditional =>
                 SemanticExpressionAnalysis.IsValid(conditional.Condition) &&
                 (!conditional.ThenRequirements.IsDefaultOrEmpty ||
