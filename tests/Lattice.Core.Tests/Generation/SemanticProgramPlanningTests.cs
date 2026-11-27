@@ -967,6 +967,45 @@ public sealed class SemanticProgramPlanningTests
             SemanticProgramPlanner.Render(statements));
     }
 
+    [Fact]
+    public void Plans_a_guard_whose_fallback_runs_when_the_guard_fails()
+    {
+        var statements = PlanWithCollections(
+            ["objects", "collections", "scene"],
+            new IterationRequirement(
+                "obj",
+                new SemanticNameExpression("objects"),
+                [new ConditionalRequirement(
+                    new SemanticNameExpression("collections"),
+                    [new IterationRequirement(
+                        "coll",
+                        new SemanticNameExpression("collections"),
+                        [new OutputRequirement(new SemanticNameExpression("coll"))])],
+                    [new OutputRequirement(new SemanticNameExpression("scene"))])]));
+
+        Assert.Equal(
+            new[]
+            {
+                "emit-loop-header",
+                "emit-indented-conditional-header",
+                "emit-double-indented-loop-header",
+                "write-standard-output-triple-indented-expression",
+                "emit-indented-else",
+                "write-standard-output-double-indented-expression"
+            },
+            statements.Select(statement => statement.Effect));
+        Assert.Equal(
+            string.Join(
+                '\n',
+                "for obj in objects:",
+                "    if collections:",
+                "        for coll in collections:",
+                "            print(coll)",
+                "    else:",
+                "        print(scene)"),
+            SemanticProgramPlanner.Render(statements));
+    }
+
     private static ImmutableArray<PlannedProgramStatement> PlanWithCollections(
         ImmutableArray<string> collectionNames,
         params ProgramRequirement[] requirements)
