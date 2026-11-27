@@ -102,6 +102,7 @@ public static class SemanticProgramValidator
                 IsValidDeclaredCall(output.Value, context),
             WhileRequirement repetition =>
                 SemanticExpressionAnalysis.IsValid(repetition.Condition) &&
+                SemanticExpressionAnalysis.GetReferencedNames(repetition.Condition).All(IsValidName) &&
                 SemanticValueKindAnalysis.IsCompatible(
                     SemanticValueKindAnalysis.Infer(repetition.Condition, context.Names, context.FunctionResults),
                     SemanticValueKind.Boolean) &&
