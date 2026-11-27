@@ -113,3 +113,14 @@ abstraction is introduced by this baseline.
 - Python CI previously lacked Pygame. This increment supplies the pinned runtime
   and headless probe. Full generated-game and anti-shortcut evidence belongs to
   Sections 5/6; this document does not claim those sections are complete.
+
+## Section 2 progress: while planning
+
+The language-neutral while model and structural checks landed in PR #598.
+PR #599 adds planning through the shared sequence pipeline and Python headers
+at depths 0–2, with focused tests for body updates, nesting, unavailable names,
+missing pack operations, and zero-iteration scope. The loop can update existing
+bindings; names introduced only inside its body are not definite bindings after
+it. Its latest implementation CI passed the Release build and full suite.
+Request-derived loop capture and end-to-end execution remain unimplemented;
+these unit tests do not establish natural-language loop generation.
