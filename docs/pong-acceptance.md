@@ -124,3 +124,19 @@ bindings; names introduced only inside its body are not definite bindings after
 it. Its latest implementation CI passed the Release build and full suite.
 Request-derived loop capture and end-to-end execution remain unimplemented;
 these unit tests do not establish natural-language loop generation.
+
+## Section 3 progress: reusable API values
+
+PR #601 extends the existing contract expression with ordered semantic arguments
+and exact pack-declared arity. Dependencies are traversed recursively, unknown
+contracts are refused, and assignment/iteration/nested-call composition is
+covered by focused tests. Its full CI passed and it merged.
+
+The Pygame contract increment declares library setup, window/clock construction,
+events and quit/key constants, surface drawing/presentation, and frame timing.
+Contract tests generate and run a small headless library probe through the shared
+planner with changed surface names and dimensions. This semantic-tree probe is
+only API validation; it does not replace Section 4 request interpretation or
+Sections 5/6 game and generalization evidence. Pygame must be installed before
+running the .NET tests (`python -m pip install -r tests/python/requirements.txt`);
+CI now does that before its full test step.

@@ -39,6 +39,9 @@ jobs:
       - name: Build solution
         run: dotnet build Lattice.slnx --configuration Release
 
+      - name: Install generated-program runtime dependencies
+        run: python -m pip install -r tests/python/requirements.txt
+
       - name: Test
         run: |
           set +e
@@ -101,9 +104,6 @@ jobs:
         run: |
           python -m unittest discover -s tools/web-search -p "test_*.py"
           python -m unittest discover -s tools/web-page-fetch -p "test_*.py"
-
-      - name: Install generated-program runtime dependencies
-        run: python -m pip install -r tests/python/requirements.txt
 
       - name: Test headless Python runtime
         run: python -m unittest discover -s tests/python -p "test_*.py"

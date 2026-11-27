@@ -48,9 +48,9 @@ The result must be genuinely playable: a game window, two controllable paddles, 
 
 ## 3. Make external API calls composable values
 
-- [ ] Extend the semantic expression model so a declared API contract can be called with arguments and its returned value used as an expression.
-- [ ] Render contract-backed API-call expressions through the selected language pack. Reject undeclared contracts instead of emitting guessed call names.
-- [ ] Test API-call results as assignment values, loop sources, and arguments to other calls, using different arguments and variable names.
+- [x] Extend the semantic expression model so a declared API contract can be called with arguments and its returned value used as an expression.
+- [x] Render contract-backed API-call expressions through the selected language pack. Reject undeclared contracts instead of emitting guessed call names.
+- [x] Test API-call results as assignment values, loop sources, and arguments to other calls, using different arguments and variable names.
 - [ ] Add reusable Pygame contracts for initialization, window creation, and clock construction.
 - [ ] Add reusable Pygame contracts for event retrieval, quit events, keyboard state, and the supported key constants.
 - [ ] Add reusable Pygame contracts for clearing a surface, drawing rectangles/circles/lines, and presenting a frame.
@@ -58,7 +58,7 @@ The result must be genuinely playable: a game window, two controllable paddles, 
 
 **Section exit:** The generator can compose declared Pygame calls and consume their return values using the same API-contract mechanism that other libraries can use. Pygame knowledge contains reusable API facts, not game logic or source templates.
 
-**Result:** In progress: extending the existing API expression with ordered arguments, exact contract arity, recursive dependency analysis, and pack-backed rendering. Focused composition/rejection tests are prepared; CI verification and merge remain pending. Pygame contracts follow this mechanism.
+**Result:** PR #601 merged composable contract-backed API values with exact arity and dependency analysis; full CI passed. Reusable Pygame setup/input/drawing/timing contracts and headless generated-code contract tests are now prepared, pending CI and merge. This does not yet prove request-to-game generation.
 
 ## 4. Interpret a complete interactive program request
 
