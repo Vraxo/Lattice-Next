@@ -116,7 +116,7 @@ The only recorded unavailability is the assistant benchmark: a scheduled, model-
 (`tools/Lattice.Assistant.Benchmark`), outside the build-and-test job. Every migrated capability is covered by the
 deterministic fixtures above, so acceptance does not depend on it.
 
-## 15.11 — one planning mechanism, and what still realizes through rules
+## 15.11 — one planning mechanism, one emitter
 
 Program *planning* has one implementation and names no language: `SemanticProgramPlanner`,
 `SemanticProgramFactMapper`, `SemanticProgramValidator`, the expression algebra, and `SequenceGenerationPipeline` hold
