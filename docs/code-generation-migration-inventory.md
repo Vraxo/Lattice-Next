@@ -1283,3 +1283,89 @@ which used to spell `"python"`, now recognises any declared language instead.
 Current counts after M-14: **21 sequence rules**, **241 input rules** (one added: the JavaScript language
 recogniser), **30 validations**, **1 encoding**; two language packs — Python at 102 productions / 26 bindings /
 104 operations, JavaScript at 16 / 9 / 14.
+
+## M-12.7a — an early continue is a requirement, not an indented fragment
+
+The Blender script's loop body skips an element it does not match. That skip used to be a knowledge step whose
+*effect name* carried both the statement and its indentation (`code-generation-emit-double-indented-continue`),
+so the knowledge was spelling a depth. `ContinueRequirement` says only that the current element's work stops
+here; the enclosing iteration is its context.
+
+| Part | What it holds |
+| --- | --- |
+| `ContinueRequirement` | no name, no condition: the loop is the context |
+| validator | valid only inside an iteration body; a function or method declared inside a loop starts a fresh context, so a `continue` cannot leak out of a declaration |
+| planner | asks the pack for the statement at the depth of the surrounding body: `emit-continue`, `emit-indented-continue`, `emit-double-indented-continue`, `emit-triple-indented-continue` |
+| Python pack | gained `emit-indented-continue` and `emit-triple-indented-continue` (the two indents the planner could ask for and the pack did not yet spell) |
+
+Planned output, from `SemanticProgramPlanningTests`:
+
+```python
+for number in [1, 2, 3]:
+    continue
+```
+
+## M-12.7b — the guard with an `else` fallback was already representable
+
+`ConditionalRequirement` carries both bodies and the planner emits `emit-else` at the branch's depth, so the shape
+needed a proof rather than a new kind. The proof is the Blender shape exactly — a guard inside a loop, whose true
+branch is a nested loop and whose false branch is the fallback:
+
+```python
+for obj in objects:
+    if collections:
+        for coll in collections:
+            print(coll)
+    else:
+        print(scene)
+```
+
+Five effects, four depths: `emit-loop-header`, `emit-indented-conditional-header`,
+`emit-double-indented-loop-header`, `write-standard-output-triple-indented-expression`, `emit-indented-else`,
+`write-standard-output-double-indented-expression`.
+
+## M-12.7c — an API expression is a contract the language declares
+
+The domain knowledge spelled API syntax in its concept *labels* (`bpy.data.objects`, `bpy.data.lights`,
+`bpy.data.objects.remove`, …). That is target-language syntax living in domain knowledge, which cannot be right
+for an application that more than one language can address.
+
+| Part | What it holds |
+| --- | --- |
+| `SemanticApiExpression(Contract)` | the knowledge's id for one part of an API, and nothing else |
+| pack table `apiExpressionFormats` | one entry per contract: `{ "contract": "api-object-datablocks", "format": "bpy.data.objects" }` |
+| loader validation | identifier contracts, unique, at most 64 entries, formats non-empty and at most 128 characters; the table itself may be empty |
+| renderer | renders the contract's declared spelling; a contract the pack does not declare cannot be rendered |
+
+Python declares the nine contracts the Blender knowledge names. The JavaScript pack declares none, and a test asks
+it for `api-object-datablocks` to prove that the requirement stays unrealizable rather than being emitted with an
+invented spelling.
+
+## M-12.8 — the API references now take part in operation selection
+
+`step-references-api` used to be cited as evidence and nothing else. It now decides which operation can realize a
+call:
+
+* The responder reads each step's contracts into the goal's capabilities as `api:<contract>`.
+* The Python pack declares three API-call operations whose prerequisites name the contract they realize:
+  `python-bound-indented-api-call-object-removal` (`api:api-object-removal`),
+  `python-bound-double-indented-api-call-scene-collection-link` (`api:blender-api-scene-collection-link`), and
+  `python-bound-triple-indented-api-call-collection-link` (`api:api-collection-link`).
+* The three Blender call steps moved off the generic call effects onto `emit-indented-api-call`,
+  `emit-double-indented-api-call`, and `emit-triple-indented-api-call`, each at the depth its step already sat at.
+* `CallRequirement` gained an optional `ApiContract`, so a planned call asks for the same family and carries the
+  same capability; a contract that is not a knowledge id is refused by the validator and by the planner.
+
+Two consequences worth recording. A goal *without* the contract can no longer select the api-call operation: the
+test asserts that the same call fails when the capability is removed and when a different contract is offered.
+And the generic `emit-call` operations stay prerequisite-free, so every other family that emits a call is
+untouched. The script, its step list, and its evidence are byte-identical.
+
+Seven of the ten API references still only cite evidence. They attach to assignments and conditions whose values
+are still text bindings, so they wait for 12.7's structured expressions — the same rewiring that would drop the
+depth from the effect names.
+
+Current counts after this segment: **21 sequence rules**, **241 input rules**, **30 validations**, **1 encoding**;
+the Python pack holds **104 productions**, **26 bindings**, **109 operations**, and **9 api expression formats**;
+the Blender domain file holds **121 concepts** and **244 relation assertions**, with **18 steps** and **10 API
+references**.
