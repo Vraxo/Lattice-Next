@@ -1452,3 +1452,30 @@ Current counts after this segment: **21 sequence rules**, **241 input rules**, *
 the Python pack holds **104 productions**, **26 bindings**, **109 operations**, and **9 api expression formats**;
 the Blender domain file holds **117 concepts**, **11 relations**, and **240 relation assertions**, with **18 steps**,
 **10 API references**, and **7 lexemes**.
+
+## M-15 — acceptance, one gap found and narrowed, and the close
+
+Section 15 ran the acceptance checks. Two things came out of it.
+
+**A real gap, now closed.** The word-output family ("prints 'Ready'", "outputs Hello World", "sets total to 5 and
+prints 'Done'") was still emitted by `KnowledgeDrivenSequenceGenerator`: `SemanticProgramPlanner` declined any request
+carrying `program.output`, `program.output.start`, or `value.output`, so those facts never projected onto a
+requirement. `SemanticProgramFactMapper.TryProjectCapturedOutput` now projects the captured words onto an
+`OutputRequirement`, and only `program.arithmetic` and `value.output.expression` remain declared unmapped. The
+projection fires only when the request states nothing else — a declared loop, an arithmetic expression, or a typed
+output keeps its own path — which `PythonProgramGenerationTests.Generates_and_executes_composed_python_programs` and
+`GeneratedCollectionProgramExecutionTests` check.
+
+**The deliberate output change.** For that family the answer's meaning is now
+`semantic-requirements(write-standard-output)` instead of `semantic-facts(language.python, …)`: the answer comes from
+requirements, not from extracted fact ids. The generated code is unchanged, and the runtime fixtures now assert the
+requirement meaning (`KnowledgeDrivenGenerationRuntimeTests`, `LatticeRuntimeSessionTests`).
+
+**The recorded residual.** Loops (`program.range-loop`, `program.collection-loop`) and expression outputs
+(`value.output.expression`) still realize through the token-rule renderer. Its 21 rules are generic renderers with no
+task or benchmark identity, and `SequenceKnowledgeGuardTests` allows no multi-line rule, so the definition of done
+holds — the second language is only reachable through the planner — but the emitter count is not yet one. That slice
+is queue item 15.18.
+
+`docs/code-generation-acceptance.md` carries the full evidence: fixture families, guards, benchmark review, Release
+build, suite, external-tool runs, as-built path, and final counts.
