@@ -66,12 +66,12 @@ The result must be genuinely playable: a game window, two controllable paddles, 
 - [x] Capture ordered initial state declarations and assignments with request-derived names and values.
 - [x] Capture nested while, collection-iteration, and conditional bodies as ordered requirement trees.
 - [x] Capture arithmetic, comparisons, member access, and indexed values as semantic expression trees for state updates and collision conditions.
-- [ ] Preserve dependencies and scope across nested blocks, including values updated in one frame and read in the next.
+- [x] Preserve dependencies and scope across nested blocks, including values updated in one frame and read in the next.
 - [ ] Add paraphrase and changed-value tests for the new request patterns. Changing dimensions, speeds, identifiers, controls, or API arguments must change the generated program accordingly.
 
 **Section exit:** The canonical request becomes a complete, ordered, language-neutral requirement tree through normal request interpretation. No fact, rule, or mapper branch is specific to Pong.
 
-**Result:** PRs #603–#608 merged ordered state, scoped nested blocks, member/index expressions, and API argument/result capture with full CI and normal-session execution. Definite-binding checks for skipped branches and empty iterations are prepared, including frame-to-frame state tests. The canonical interactive phrasing and complete requirement-tree proof remain pending.
+**Result:** PRs #603–#609 merged ordered state, nested scopes, member/index expressions, API argument/results, and definite-binding checks with full CI and frame-to-frame execution tests. Natural window setup using request-derived argument slots and default/explicit return bindings is prepared for verification. Remaining canonical interactive phrasing and its complete requirement-tree proof are still pending.
 
 ## 5. Compose and execute the game incrementally
 

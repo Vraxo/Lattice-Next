@@ -59,7 +59,30 @@ public sealed class ApiRequestGenerationTests
             "quit observed\n");
     }
 
-    private static async Task GenerateAndExecute(string request, string expected)
+    [Theory]
+    [InlineData(640, 480)]
+    [InlineData(240, 180)]
+    public async Task Executes_naturally_worded_window_setup_with_changed_dimensions(int width, int height)
+    {
+        var code = await GenerateAndExecute(
+            $"Write a Python program using Pygame. Initialize Pygame, open a window that is {width} wide and {height} tall. " +
+            "Invoke api pygame-surface-size with arguments (screen) saving result as dimensions then print dimensions. Quit Pygame.",
+            $"({width}, {height})\n");
+        Assert.Contains($"screen = pygame.display.set_mode([{width}, {height}])", code, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task Window_arguments_can_be_computed_from_request_bound_state()
+    {
+        var code = await GenerateAndExecute(
+            "Write a Python program using Pygame. Initialize Pygame. Set width to 80 and set height to 60. " +
+            "Open a window that is width + 10 wide and height + 20 tall saving result as canvas. " +
+            "Invoke api pygame-surface-size with arguments (canvas) saving result as dimensions then print dimensions. Quit Pygame.",
+            "(90, 80)\n");
+        Assert.Contains("canvas = pygame.display.set_mode([width + 10, height + 20])", code, StringComparison.Ordinal);
+    }
+
+    private static async Task<string> GenerateAndExecute(string request, string expected)
     {
         var client = new LatticeRuntimeClient();
         await using var session = await client.CreateSessionAsync();
@@ -71,7 +94,9 @@ public sealed class ApiRequestGenerationTests
         var start = Array.IndexOf(lines, fence + "python");
         var end = Array.IndexOf(lines, fence, start + 1);
         Assert.True(start >= 0 && end > start);
-        await Execute(string.Join('\n', lines[(start + 1)..end]), expected);
+        var code = string.Join('\n', lines[(start + 1)..end]);
+        await Execute(code, expected);
+        return code;
     }
 
     private static async Task Execute(string code, string expected)

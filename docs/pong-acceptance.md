@@ -140,3 +140,15 @@ only API validation; it does not replace Section 4 request interpretation or
 Sections 5/6 game and generalization evidence. Pygame must be installed before
 running the .NET tests (`python -m pip install -r tests/python/requirements.txt`);
 CI now does that before its full test step.
+
+## Natural window setup increment
+
+Individually captured API parameters use the generic `argument0` through
+`argument7` slots, associated with a call by request position and sentence span.
+Slots must be contiguous and cannot be mixed with an explicit argument list for
+the same call. A declarative default result binding applies only when the request
+supplies no explicit result name. Pygame's window-dimensions contract uses this
+mechanism for the requested width and height; there is no window or library
+branch in the mapper. Tests execute changed dimensions and computed dimensions
+through normal sessions. This slice does not establish the remaining timing,
+held-input, drawing, and close-action interpretation of the frozen request.

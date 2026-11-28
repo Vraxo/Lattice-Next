@@ -6882,6 +6882,63 @@
       ],
       "repeatMatches": true,
       "searchAllSentences": true
+    },
+    {
+      "id": "capture-pygame-window-dimensions",
+      "matchTokens": [
+        "open",
+        "window"
+      ],
+      "factId": "program.requirement.api-call",
+      "captures": [
+        {
+          "factId": "program.requirement.api-call",
+          "valueId": "contract",
+          "literalValue": "pygame-window-dimensions"
+        },
+        {
+          "factId": "program.requirement.api-parameters",
+          "valueId": "argument0",
+          "startAfterTokens": [
+            "is"
+          ],
+          "stopBeforeTokens": [
+            "wide"
+          ],
+          "semanticExpressionKind": "value",
+          "preserveRawValue": true
+        },
+        {
+          "factId": "program.requirement.api-parameters",
+          "valueId": "argument1",
+          "startAfterTokens": [
+            "wide",
+            "and"
+          ],
+          "stopBeforeTokens": [
+            "tall"
+          ],
+          "semanticExpressionKind": "value",
+          "preserveRawValue": true
+        },
+        {
+          "factId": "program.requirement.api-default-result",
+          "valueId": "name",
+          "literalValue": "screen"
+        }
+      ],
+      "requiredAnySequences": [
+        [
+          "using",
+          "pygame"
+        ],
+        [
+          "import",
+          "pygame"
+        ]
+      ],
+      "repeatMatches": true,
+      "searchAllSentences": true
     }
   ],
   "validations": [

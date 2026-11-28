@@ -2685,10 +2685,12 @@ public static class SemanticProgramFactMapper
 
         var calls = facts.FirstOrDefault(fact => fact.Id == "program.requirement.api-call");
         var arguments = facts.FirstOrDefault(fact => fact.Id == "program.requirement.api-arguments");
+        var parameters = facts.FirstOrDefault(fact => fact.Id == "program.requirement.api-parameters");
+        var defaults = facts.FirstOrDefault(fact => fact.Id == "program.requirement.api-default-result");
         var results = facts.FirstOrDefault(fact => fact.Id == "program.requirement.api-result");
         if (calls is null)
         {
-            if (arguments is not null || results is not null)
+            if (arguments is not null || parameters is not null || defaults is not null || results is not null)
             {
                 error = "API arguments and result names need a declared API invocation.";
                 return false;
@@ -2710,7 +2712,7 @@ public static class SemanticProgramFactMapper
         var argumentSeen = new bool[contracts.Length];
         var resultNames = new string?[contracts.Length];
         int FindCall(int position) => Enumerable.Range(0, contracts.Length)
-            .Where(index => callPositions[index] < position && position < callEnds[index])
+            .Where(index => callPositions[index] <= position && position < callEnds[index])
             .OrderBy(index => callPositions[index]).LastOrDefault(-1);
 
         if (arguments is not null)
@@ -2736,6 +2738,50 @@ public static class SemanticProgramFactMapper
             }
         }
 
+        if (parameters is not null)
+        {
+            var slots = Enumerable.Range(0, contracts.Length)
+                .Select(_ => new SortedDictionary<int, SemanticExpression>()).ToArray();
+            var fields = parameters.ExpressionCollections.Keys.Concat(parameters.Expressions.Keys).Distinct(StringComparer.Ordinal);
+            foreach (var field in fields)
+            {
+                if (!field.StartsWith("argument", StringComparison.Ordinal) ||
+                    !int.TryParse(field.AsSpan("argument".Length), out var slot) || slot is < 0 or > 7 ||
+                    !TryGetExpressions(parameters, field, out var values))
+                {
+                    error = "API parameters need typed argument slots numbered zero through seven.";
+                    return false;
+                }
+
+                var positions = GetCollectionPositions(parameters, field, values.Length);
+                for (var index = 0; index < values.Length; index++)
+                {
+                    var call = FindCall(positions[index]);
+                    if (call < 0 || argumentSeen[call] || !slots[call].TryAdd(slot, values[index]))
+                    {
+                        error = "An API argument slot must belong to one invocation and cannot duplicate a supplied argument list.";
+                        return false;
+                    }
+                }
+            }
+
+            for (var call = 0; call < contracts.Length; call++)
+            {
+                if (slots[call].Count == 0)
+                {
+                    continue;
+                }
+
+                if (!slots[call].Keys.SequenceEqual(Enumerable.Range(0, slots[call].Count)))
+                {
+                    error = "API argument slots must be contiguous, starting at zero.";
+                    return false;
+                }
+
+                callArguments[call] = slots[call].Values.ToImmutableArray();
+            }
+        }
+
         if (results is not null)
         {
             if (!TryGetCollection(results, "name", out var names))
@@ -2755,6 +2801,29 @@ public static class SemanticProgramFactMapper
                 }
 
                 resultNames[call] = names[index];
+            }
+        }
+
+        if (defaults is not null)
+        {
+            if (!TryGetCollection(defaults, "name", out var names))
+            {
+                error = "Default API result bindings need names.";
+                return false;
+            }
+
+            var positions = GetCollectionPositions(defaults, "name", names.Length);
+            var seen = new HashSet<int>();
+            for (var index = 0; index < names.Length; index++)
+            {
+                var call = FindCall(positions[index]);
+                if (call < 0 || !seen.Add(call))
+                {
+                    error = "Each default API result must belong to one invocation.";
+                    return false;
+                }
+
+                resultNames[call] ??= names[index];
             }
         }
 
