@@ -60,6 +60,16 @@ public sealed class SurfaceRequestInterpretationTests
         Assert.Empty(code);
     }
 
+    [Fact]
+    public void Plans_the_complete_pixel_probe_request()
+    {
+        const string request = "Write a Python program using Pygame. Initialize Pygame, open a window that is 32 wide and 24 tall saving result as screen. Clear the screen to black. Present the frame. Invoke api pygame-surface-pixel with arguments (screen, [0, 0]) saving result as pixel then print pixel.r + pixel.g + pixel.b. Quit Pygame.";
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var error), error);
+        Assert.True(SequenceInputFactExtractor.TryExtract(knowledge!, request, out var facts, out error), error);
+        Assert.True(new GenerationLanguagePackLoader().TryLoadEmbedded(out var packs, out error), error);
+        Assert.True(SemanticProgramPlanner.TryGenerateProgram(facts, packs["python"], out _, out _, out error), error);
+    }
+
     private static SemanticProgram Interpret(string request)
     {
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var error), error);
