@@ -160,6 +160,7 @@ public static class SemanticProgramValidator
                 !iteration.Body.IsDefaultOrEmpty &&
                 AreValid(iteration.Body, depth + 1, context with { InsideIteration = true }),
             ContinueRequirement continueStatement => context.InsideIteration,
+            BreakRequirement => context.InsideIteration,
             FilterRequirement filter =>
                 IsValidName(filter.ResultName) &&
                 IsValidName(filter.ItemName) &&

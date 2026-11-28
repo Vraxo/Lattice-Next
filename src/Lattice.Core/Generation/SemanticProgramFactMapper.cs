@@ -351,6 +351,15 @@ public static class SemanticProgramFactMapper
             return false;
         }
 
+        var breaks = facts.FirstOrDefault(fact => fact.Id == "program.requirement.break");
+        if (breaks is not null && TryGetCollection(breaks, "marker", out var breakMarkers))
+        {
+            foreach (var position in GetCollectionPositions(breaks, "marker", breakMarkers.Length))
+            {
+                events.Add(new RequirementEvent(position, eventOrder++, new BreakRequirement()));
+            }
+        }
+
         if (!TryProjectAssignments(facts, events, ref eventOrder, out error))
         {
             return false;

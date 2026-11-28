@@ -205,3 +205,15 @@ binding names are tested at interpretation and normal-session execution.
 The SDL dummy driver supplies the released-state baseline; deterministic held
 input and the canonical held-key action wording still require later work.
 PR #614 verified mixed circle/rectangle requests and pixel execution checks.
+
+## Early repetition exit increment
+
+`Leave repetition` and `Stop repetition` project an ordered language-neutral
+`BreakRequirement`, leaving the innermost repetition and resuming after it.
+The shared validator requires an enclosing iteration and resets that context
+inside declarations. Planning now applies structural validation at entry, so
+direct semantic trees cannot bypass this context check. Python operations
+realize early exit through the shared pipeline at the supported block depths.
+Normal-session tests execute changed thresholds, nested loops and collection
+iteration exits. This is a reusable prerequisite, not yet natural close-event
+interpretation. PR #615 verified keyboard acquisition and result-bound branches.

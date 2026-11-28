@@ -134,6 +134,9 @@ public sealed record FileReadRequirement(
 /// </summary>
 public sealed record ContinueRequirement : ProgramRequirement;
 
+/// <summary>Leaves the innermost enclosing repetition, resuming after its body.</summary>
+public sealed record BreakRequirement : ProgramRequirement;
+
 /// <summary>
 /// An iteration over a collection value, binding each element to an item name. The body is an ordered
 /// requirement list, so loops compose with the same model as top-level statements.
