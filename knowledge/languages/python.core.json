@@ -4098,6 +4098,11 @@
       "contract": "pygame-surface-pixel",
       "format": "({0}).get_at({1})",
       "argumentCount": 2
+    },
+    {
+      "contract": "pygame-window-dimensions",
+      "format": "pygame.display.set_mode([{0}, {1}])",
+      "argumentCount": 2
     }
   ]
 }
