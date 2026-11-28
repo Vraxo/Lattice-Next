@@ -111,6 +111,10 @@ public sealed record SequenceInputFactRule(
     /// <summary>Required ordered lookahead within this clause, ending at then or sentence punctuation.</summary>
     public ImmutableArray<string> FollowingMatchTokens { get; init; } = ImmutableArray<string>.Empty;
 
+    /// <summary>Ordered lookahead that disqualifies this occurrence within the same clause.</summary>
+    public ImmutableArray<string> ForbiddenFollowingMatchTokens { get; init; } = ImmutableArray<string>.Empty;
+
+
     public bool SearchAllSentences { get; init; }
 
     public bool RepeatMatches { get; init; }

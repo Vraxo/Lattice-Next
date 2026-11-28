@@ -104,6 +104,13 @@ public static class SequenceInputFactExtractor
                     continue;
                 }
 
+                if (!rule.ForbiddenFollowingMatchTokens.IsDefaultOrEmpty &&
+                    MatchesClauseLookahead(tokens, matchedToken + 1, rule.ForbiddenFollowingMatchTokens))
+                {
+                    searchStart = matchedToken + 1;
+                    continue;
+                }
+
                 matchPositions.Add(matchedToken);
                 if (!rule.RepeatMatches)
                 {

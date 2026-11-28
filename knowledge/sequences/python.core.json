@@ -6696,7 +6696,12 @@
         ]
       ],
       "repeatMatches": true,
-      "searchAllSentences": true
+      "searchAllSentences": true,
+      "forbiddenFollowingMatchTokens": [
+        "key",
+        "is",
+        "held"
+      ]
     },
     {
       "id": "capture-generic-import",
@@ -7696,6 +7701,136 @@
           "factId": "program.requirement.api-default-result",
           "valueId": "name",
           "literalValue": "close_code"
+        }
+      ],
+      "requiredAnySequences": [
+        [
+          "using",
+          "pygame"
+        ],
+        [
+          "import",
+          "pygame"
+        ]
+      ],
+      "repeatMatches": true,
+      "searchAllSentences": true
+    },
+    {
+      "id": "capture-pygame-held-key-w",
+      "matchTokens": [
+        "while",
+        "w",
+        "key",
+        "is",
+        "held"
+      ],
+      "factId": "program.requirement.condition",
+      "captures": [
+        {
+          "factId": "program.requirement.condition",
+          "valueId": "condition",
+          "literalValue": "api('pygame-keys')[api('pygame-key-w')] == True",
+          "semanticExpressionKind": "boolean",
+          "preserveRawValue": true
+        }
+      ],
+      "requiredAnySequences": [
+        [
+          "using",
+          "pygame"
+        ],
+        [
+          "import",
+          "pygame"
+        ]
+      ],
+      "repeatMatches": true,
+      "searchAllSentences": true
+    },
+    {
+      "id": "capture-pygame-held-key-s",
+      "matchTokens": [
+        "while",
+        "s",
+        "key",
+        "is",
+        "held"
+      ],
+      "factId": "program.requirement.condition",
+      "captures": [
+        {
+          "factId": "program.requirement.condition",
+          "valueId": "condition",
+          "literalValue": "api('pygame-keys')[api('pygame-key-s')] == True",
+          "semanticExpressionKind": "boolean",
+          "preserveRawValue": true
+        }
+      ],
+      "requiredAnySequences": [
+        [
+          "using",
+          "pygame"
+        ],
+        [
+          "import",
+          "pygame"
+        ]
+      ],
+      "repeatMatches": true,
+      "searchAllSentences": true
+    },
+    {
+      "id": "capture-pygame-held-key-up",
+      "matchTokens": [
+        "while",
+        "up",
+        "arrow",
+        "key",
+        "is",
+        "held"
+      ],
+      "factId": "program.requirement.condition",
+      "captures": [
+        {
+          "factId": "program.requirement.condition",
+          "valueId": "condition",
+          "literalValue": "api('pygame-keys')[api('pygame-key-up')] == True",
+          "semanticExpressionKind": "boolean",
+          "preserveRawValue": true
+        }
+      ],
+      "requiredAnySequences": [
+        [
+          "using",
+          "pygame"
+        ],
+        [
+          "import",
+          "pygame"
+        ]
+      ],
+      "repeatMatches": true,
+      "searchAllSentences": true
+    },
+    {
+      "id": "capture-pygame-held-key-down",
+      "matchTokens": [
+        "while",
+        "down",
+        "arrow",
+        "key",
+        "is",
+        "held"
+      ],
+      "factId": "program.requirement.condition",
+      "captures": [
+        {
+          "factId": "program.requirement.condition",
+          "valueId": "condition",
+          "literalValue": "api('pygame-keys')[api('pygame-key-down')] == True",
+          "semanticExpressionKind": "boolean",
+          "preserveRawValue": true
         }
       ],
       "requiredAnySequences": [
