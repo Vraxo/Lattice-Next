@@ -31,6 +31,10 @@ public sealed record GenerationInputSyntax(
     /// <summary>The delimiters surrounding an ordered list literal.</summary>
     public GenerationDelimiterPair? ListLiteralDelimiter { get; init; }
 
+    /// <summary>Optional input function naming a contract-backed value; its first argument is a contract string.</summary>
+    public string? ApiReferenceFunctionName { get; init; }
+
+
 
 
     /// <summary>

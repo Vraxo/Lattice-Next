@@ -216,6 +216,30 @@ public sealed class ApiRequestGenerationTests
             "1\n");
     }
 
+    [Theory]
+    [InlineData("pygame-key-w", "xpos", 3)]
+    [InlineData("pygame-key-s", "ypos", 5)]
+    [InlineData("pygame-key-up", "position", 7)]
+    [InlineData("pygame-key-down", "offset", 9)]
+    public async Task Executes_inline_api_control_conditions_inside_frame_loops(string key, string variable, int step)
+    {
+        var code = await GenerateAndExecute(
+            "Write a Python program using Pygame. Initialize Pygame. Open a window that is 32 wide and 24 tall. " +
+            $"Set frame to 0 and set {variable} to 10 then while frame is less than 2 then " +
+            $"when api('pygame-keys')[api('{key}')] == True then set {variable} to {variable} + {step}. " +
+            $"Set frame to frame + 1. End repetition. Print {variable}. Quit Pygame.",
+            "10\n");
+        Assert.Contains("pygame.key.get_pressed()[pygame.K_", code, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task Executes_api_values_nested_inside_a_value_call_and_member_access()
+    {
+        await GenerateAndExecute(
+            "Write a Python program using Pygame. Initialize Pygame. Set kind to api('pygame-event', api('pygame-quit-event')).type then when kind == api('pygame-quit-event') then print 'matched'. Quit Pygame.",
+            "matched\n");
+    }
+
     private static async Task<string> GenerateAndExecute(string request, string expected)
     {
         var client = new LatticeRuntimeClient();
