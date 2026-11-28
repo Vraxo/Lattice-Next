@@ -626,6 +626,9 @@ public static class SemanticProgramPlanner
             case 2:
                 effect = "emit-double-indented-assignment";
                 break;
+            case 3:
+                effect = "emit-triple-indented-assignment";
+                break;
             default:
                 error = $"Program statements support at most {MaximumDepth} levels of nested blocks.";
                 return false;
