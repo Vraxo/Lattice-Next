@@ -130,6 +130,32 @@ public sealed class ApiRequestGenerationTests
             "timed\n");
     }
 
+    [Theory]
+    [InlineData("marker", "red", 3, 4, 8, 9, 255)]
+    [InlineData("panel", "white", 5, 6, 10, 12, 765)]
+    public async Task Executes_rectangle_descriptions_and_checks_inside_and_outside_pixels(
+        string label, string color, int x, int y, int width, int height, int expected)
+    {
+        await GenerateAndExecute(
+            "Write a Python program using Pygame. Initialize Pygame. Open a window that is 64 wide and 48 tall. Clear the screen to black. " +
+            $"Set xpos to {x} and set ypos to {y} and set rectWidth to {width} and set rectHeight to {height}. " +
+            $"Draw the {label} as a {color} rectangle at x xpos and y ypos with width rectWidth and height rectHeight. Present the frame. " +
+            "Invoke api pygame-surface-pixel with arguments (screen, [xpos, ypos]) saving result as inside then print inside.r + inside.g + inside.b. " +
+            "Invoke api pygame-surface-pixel with arguments (screen, [xpos + rectWidth, ypos]) saving result as outside then print outside.r + outside.g + outside.b. Quit Pygame.",
+            $"{expected}\n0\n");
+    }
+
+    [Fact]
+    public async Task Executes_multiple_distinct_rectangles_in_one_sentence()
+    {
+        await GenerateAndExecute(
+            "Write a Python program using Pygame. Initialize Pygame. Open a window that is 64 wide and 48 tall. Clear the screen to black. " +
+            "Draw the first as a red rectangle at x 2 and y 3 with width 4 and height 5 then draw the second as a white rectangle at x 20 and y 30 with width 6 and height 7. " +
+            "Invoke api pygame-surface-pixel with arguments (screen, [2, 3]) saving result as firstPixel then print firstPixel.r + firstPixel.g + firstPixel.b. " +
+            "Invoke api pygame-surface-pixel with arguments (screen, [20, 30]) saving result as secondPixel then print secondPixel.r + secondPixel.g + secondPixel.b. Quit Pygame.",
+            "255\n765\n");
+    }
+
     private static async Task<string> GenerateAndExecute(string request, string expected)
     {
         var client = new LatticeRuntimeClient();

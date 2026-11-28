@@ -4103,6 +4103,11 @@
       "contract": "pygame-window-dimensions",
       "format": "pygame.display.set_mode([{0}, {1}])",
       "argumentCount": 2
+    },
+    {
+      "contract": "pygame-draw-rectangle-dimensions",
+      "format": "pygame.draw.rect({0}, {1}, [{2}, {3}, {4}, {5}])",
+      "argumentCount": 6
     }
   ]
 }

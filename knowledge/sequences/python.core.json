@@ -7155,6 +7155,107 @@
       ],
       "repeatMatches": true,
       "searchAllSentences": true
+    },
+    {
+      "id": "capture-pygame-rectangle-dimensions",
+      "matchTokens": [
+        "draw"
+      ],
+      "factId": "program.requirement.api-call",
+      "captures": [
+        {
+          "factId": "program.requirement.api-call",
+          "valueId": "contract",
+          "literalValue": "pygame-draw-rectangle-dimensions"
+        },
+        {
+          "factId": "program.requirement.api-text-parameters",
+          "valueId": "argument0",
+          "literalValue": "screen",
+          "semanticExpressionKind": "value"
+        },
+        {
+          "factId": "program.requirement.api-text-parameters",
+          "valueId": "argument1",
+          "startAfterTokens": [
+            "as"
+          ],
+          "trimPrefixTokens": [
+            "a"
+          ],
+          "stopBeforeTokens": [
+            "rectangle"
+          ],
+          "semanticExpressionKind": "text"
+        },
+        {
+          "factId": "program.requirement.api-parameters",
+          "valueId": "argument2",
+          "startAfterTokens": [
+            "x"
+          ],
+          "stopBeforeTokens": [
+            "and"
+          ],
+          "semanticExpressionKind": "value",
+          "preserveRawValue": true
+        },
+        {
+          "factId": "program.requirement.api-parameters",
+          "valueId": "argument3",
+          "startAfterTokens": [
+            "y"
+          ],
+          "stopBeforeTokens": [
+            "with"
+          ],
+          "semanticExpressionKind": "value",
+          "preserveRawValue": true
+        },
+        {
+          "factId": "program.requirement.api-parameters",
+          "valueId": "argument4",
+          "startAfterTokens": [
+            "width"
+          ],
+          "stopBeforeTokens": [
+            "and"
+          ],
+          "semanticExpressionKind": "value",
+          "preserveRawValue": true
+        },
+        {
+          "factId": "program.requirement.api-parameters",
+          "valueId": "argument5",
+          "startAfterTokens": [
+            "height"
+          ],
+          "stopBeforeTokens": [
+            "then"
+          ],
+          "semanticExpressionKind": "value",
+          "preserveRawValue": true
+        }
+      ],
+      "requiredAnySequences": [
+        [
+          "using",
+          "pygame"
+        ],
+        [
+          "import",
+          "pygame"
+        ]
+      ],
+      "repeatMatches": true,
+      "searchAllSentences": true,
+      "requiredAllSequences": [
+        [
+          "draw",
+          "as",
+          "rectangle"
+        ]
+      ]
     }
   ],
   "validations": [
