@@ -7249,12 +7249,95 @@
       ],
       "repeatMatches": true,
       "searchAllSentences": true,
-      "requiredAllSequences": [
+      "followingMatchTokens": [
+        "as",
+        "rectangle"
+      ]
+    },
+    {
+      "id": "capture-pygame-circle-dimensions",
+      "matchTokens": [
+        "draw"
+      ],
+      "factId": "program.requirement.api-call",
+      "captures": [
+        {
+          "factId": "program.requirement.api-call",
+          "valueId": "contract",
+          "literalValue": "pygame-draw-circle-dimensions"
+        },
+        {
+          "factId": "program.requirement.api-text-parameters",
+          "valueId": "argument0",
+          "literalValue": "screen",
+          "semanticExpressionKind": "value"
+        },
+        {
+          "factId": "program.requirement.api-text-parameters",
+          "valueId": "argument1",
+          "startAfterTokens": [
+            "as"
+          ],
+          "trimPrefixTokens": [
+            "a"
+          ],
+          "stopBeforeTokens": [
+            "circle"
+          ],
+          "semanticExpressionKind": "text"
+        },
+        {
+          "factId": "program.requirement.api-parameters",
+          "valueId": "argument2",
+          "startAfterTokens": [
+            "x"
+          ],
+          "stopBeforeTokens": [
+            "and"
+          ],
+          "semanticExpressionKind": "value",
+          "preserveRawValue": true
+        },
+        {
+          "factId": "program.requirement.api-parameters",
+          "valueId": "argument3",
+          "startAfterTokens": [
+            "y"
+          ],
+          "stopBeforeTokens": [
+            "with"
+          ],
+          "semanticExpressionKind": "value",
+          "preserveRawValue": true
+        },
+        {
+          "factId": "program.requirement.api-parameters",
+          "valueId": "argument4",
+          "startAfterTokens": [
+            "radius"
+          ],
+          "stopBeforeTokens": [
+            "then"
+          ],
+          "semanticExpressionKind": "value",
+          "preserveRawValue": true
+        }
+      ],
+      "requiredAnySequences": [
         [
-          "draw",
-          "as",
-          "rectangle"
+          "using",
+          "pygame"
+        ],
+        [
+          "import",
+          "pygame"
         ]
+      ],
+      "repeatMatches": true,
+      "searchAllSentences": true,
+      "followingMatchTokens": [
+        "as",
+        "circle"
       ]
     }
   ],

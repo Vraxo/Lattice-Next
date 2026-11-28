@@ -108,6 +108,9 @@ public sealed record SequenceInputFactRule(
     string? LiteralValue = null,
     ImmutableArray<SequenceInputFactCapture> Captures = default)
 {
+    /// <summary>Required ordered lookahead within this clause, ending at then or sentence punctuation.</summary>
+    public ImmutableArray<string> FollowingMatchTokens { get; init; } = ImmutableArray<string>.Empty;
+
     public bool SearchAllSentences { get; init; }
 
     public bool RepeatMatches { get; init; }

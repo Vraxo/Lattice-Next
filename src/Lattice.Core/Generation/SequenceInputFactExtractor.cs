@@ -97,6 +97,13 @@ public static class SequenceInputFactExtractor
             var searchStart = 0;
             while (TryFindMatch(tokens, rule.MatchTokens, searchStart, out var matchedToken, rule.SearchAllSentences))
             {
+                if (!rule.FollowingMatchTokens.IsDefaultOrEmpty &&
+                    !MatchesClauseLookahead(tokens, matchedToken + 1, rule.FollowingMatchTokens))
+                {
+                    searchStart = matchedToken + 1;
+                    continue;
+                }
+
                 matchPositions.Add(matchedToken);
                 if (!rule.RepeatMatches)
                 {
@@ -916,6 +923,34 @@ public static class SequenceInputFactExtractor
         }
 
         return true;
+    }
+
+    private static bool MatchesClauseLookahead(
+        ImmutableArray<EnglishToken> tokens, int start, ImmutableArray<string> pattern)
+    {
+        var matched = 0;
+        for (var index = start; index < tokens.Length; index++)
+        {
+            var token = tokens[index];
+            if (token.IsQuoted)
+            {
+                continue;
+            }
+
+            if (token.Value.Equals("then", StringComparison.OrdinalIgnoreCase) ||
+                (token.IsPunctuation && token.Value is "." or "?" or "!"))
+            {
+                return false;
+            }
+
+            if (token.Value.Equals(pattern[matched], StringComparison.OrdinalIgnoreCase) &&
+                ++matched == pattern.Length)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static bool TryFindMatch(
