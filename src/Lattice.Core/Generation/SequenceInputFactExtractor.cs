@@ -552,7 +552,7 @@ public static class SequenceInputFactExtractor
         out string? error)
     {
         error = null;
-        if (kind is not ("arithmetic" or "boolean" or "value" or "functionCall" or "comparisonOperator"))
+        if (kind is not ("arithmetic" or "boolean" or "value" or "functionCall" or "arguments" or "comparisonOperator"))
         {
             error = $"Semantic expression capture kind '{kind}' is unsupported.";
             return false;
@@ -1045,12 +1045,13 @@ public static class SequenceInputFactExtractor
                 break;
             }
 
-            if ((!stopBeforeTokens.IsDefaultOrEmpty &&
-                 stopBeforeTokens.Any(stop =>
-                     token.Value.Equals(stop, StringComparison.OrdinalIgnoreCase))) ||
-                (!stopBeforeSequences.IsDefaultOrEmpty &&
-                 stopBeforeSequences.Any(sequence =>
-                     MatchesSequenceAt(tokens, index, sequence))))
+            if (!token.IsQuoted &&
+                ((!stopBeforeTokens.IsDefaultOrEmpty &&
+                  stopBeforeTokens.Any(stop =>
+                      token.Value.Equals(stop, StringComparison.OrdinalIgnoreCase))) ||
+                 (!stopBeforeSequences.IsDefaultOrEmpty &&
+                  stopBeforeSequences.Any(sequence =>
+                      MatchesSequenceAt(tokens, index, sequence)))))
             {
                 captureEnd = token.Start;
                 break;

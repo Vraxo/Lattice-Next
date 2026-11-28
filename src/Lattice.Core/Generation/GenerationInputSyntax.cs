@@ -28,6 +28,10 @@ public sealed record GenerationInputSyntax(
     /// <summary>The delimiters selecting one element from a value, distinct from grouping and calls.</summary>
     public GenerationDelimiterPair? SubscriptDelimiter { get; init; }
 
+    /// <summary>The delimiters surrounding an ordered list literal.</summary>
+    public GenerationDelimiterPair? ListLiteralDelimiter { get; init; }
+
+
 
     /// <summary>
     /// How a program reads one argument it was started with. A pack without this format cannot render a
