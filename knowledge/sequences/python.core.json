@@ -7575,6 +7575,40 @@
       ],
       "repeatMatches": true,
       "searchAllSentences": true
+    },
+    {
+      "id": "capture-generic-repetition-leave",
+      "matchTokens": [
+        "leave",
+        "repetition"
+      ],
+      "factId": "program.requirement.break",
+      "captures": [
+        {
+          "factId": "program.requirement.break",
+          "valueId": "marker",
+          "literalValue": "break"
+        }
+      ],
+      "repeatMatches": true,
+      "searchAllSentences": true
+    },
+    {
+      "id": "capture-generic-repetition-stop",
+      "matchTokens": [
+        "stop",
+        "repetition"
+      ],
+      "factId": "program.requirement.break",
+      "captures": [
+        {
+          "factId": "program.requirement.break",
+          "valueId": "marker",
+          "literalValue": "break"
+        }
+      ],
+      "repeatMatches": true,
+      "searchAllSentences": true
     }
   ],
   "validations": [

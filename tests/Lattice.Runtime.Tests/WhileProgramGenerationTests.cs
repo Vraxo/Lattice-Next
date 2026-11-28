@@ -95,6 +95,18 @@ public sealed class WhileProgramGenerationTests
     [InlineData(
         "Write a Python program that set limit to 3 then for each number in range(0, limit) then print number. End repetition. Print limit.",
         "0\n1\n2\n3\n")]
+    [InlineData(
+        "Write a Python program that set count to 0 then while count is less than 5 then set count to count + 1. When count is equal to 2 then leave repetition. End repetition. Print count.",
+        "2\n")]
+    [InlineData(
+        "Write a Python program that set count to 0 then while count is less than 8 then set count to count + 2. When count is at least 5 then stop repetition. End repetition. Print count.",
+        "6\n")]
+    [InlineData(
+        "Write a Python program that set outer to 0 then while outer is less than 2 then set inner to 0. While inner is less than 3 then set inner to inner + 1. When inner is equal to 1 then leave repetition. End repetition. Print inner then set outer to outer + 1. End repetition. Print outer.",
+        "1\n1\n2\n")]
+    [InlineData(
+        "Write a Python program that set text to 'abc' then for each letter in text then when letter is equal to 'b' then leave repetition. Print letter. End repetition. Print text.",
+        "a\nabc\n")]
     public async Task Executes_nested_and_explicitly_bounded_repetitions(string request, string expected)
     {
         var client = new LatticeRuntimeClient();

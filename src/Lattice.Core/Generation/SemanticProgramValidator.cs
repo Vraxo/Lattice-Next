@@ -67,6 +67,44 @@ public static class SemanticProgramValidator
         return AreValid(program.Requirements, depth: 0, context);
     }
 
+    /// <summary>Checks early-exit placement without replacing the planner's detailed diagnostics.</summary>
+    internal static bool HasValidBreakContext(
+        ImmutableArray<ProgramRequirement> requirements, bool insideIteration = false, int depth = 0)
+    {
+        if (requirements.IsDefault)
+        {
+            return true; // Structural validation/planning reports missing bodies separately.
+        }
+
+        if (depth > MaximumRequirements)
+        {
+            return false;
+        }
+
+        bool Check(ImmutableArray<ProgramRequirement> body, bool loop) =>
+            HasValidBreakContext(body, loop, depth + 1);
+
+        return requirements.All(requirement => requirement switch
+        {
+            BreakRequirement => insideIteration,
+            WhileRequirement loop => Check(loop.Body, true),
+            IterationRequirement loop => Check(loop.Body, true),
+            DictionaryIterationRequirement loop => Check(loop.Body, true),
+            ConditionalRequirement branch => Check(branch.ThenRequirements, insideIteration) &&
+                Check(branch.ElseRequirements, insideIteration),
+            ConditionalChainRequirement chain => chain.Branches.All(branch => Check(branch.Body, insideIteration)) &&
+                Check(chain.Otherwise, insideIteration),
+            FunctionRequirement function => Check(function.Body, false),
+            ClassRequirement declaration => declaration.Methods.All(method => Check(method.Body, false)),
+            FileReadRequirement file => Check(file.Body, insideIteration),
+            FileWriteRequirement file => Check(file.Body, insideIteration),
+            DirectoryListingRequirement listing => Check(listing.Body, insideIteration),
+            TryRequirement attempt => Check(attempt.Body, insideIteration) &&
+                attempt.Handlers.All(handler => Check(handler.Body, insideIteration)),
+            _ => true
+        });
+    }
+
     private static bool AreValid(
         ImmutableArray<ProgramRequirement> requirements,
         int depth,
@@ -160,6 +198,7 @@ public static class SemanticProgramValidator
                 !iteration.Body.IsDefaultOrEmpty &&
                 AreValid(iteration.Body, depth + 1, context with { InsideIteration = true }),
             ContinueRequirement continueStatement => context.InsideIteration,
+            BreakRequirement => context.InsideIteration,
             FilterRequirement filter =>
                 IsValidName(filter.ResultName) &&
                 IsValidName(filter.ItemName) &&

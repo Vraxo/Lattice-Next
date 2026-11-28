@@ -2421,6 +2421,42 @@
           "value": "expression"
         }
       ]
+    },
+    {
+      "head": "break-statement",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "break"
+        }
+      ]
+    },
+    {
+      "head": "bound-double-indented-break",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "        break"
+        }
+      ]
+    },
+    {
+      "head": "bound-indented-break",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "    break"
+        }
+      ]
+    },
+    {
+      "head": "bound-triple-indented-break",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "            break"
+        }
+      ]
     }
   ],
   "bindings": [
@@ -3516,6 +3552,38 @@
       "argumentKind": "expression",
       "prerequisites": [],
       "startSymbol": "bound-triple-indented-expression-statement"
+    },
+    {
+      "id": "python-break",
+      "symbol": "break",
+      "effect": "emit-break",
+      "argumentKind": "none",
+      "prerequisites": [],
+      "startSymbol": "break-statement"
+    },
+    {
+      "id": "python-bound-double-indented-break",
+      "symbol": "break",
+      "effect": "emit-double-indented-break",
+      "argumentKind": "none",
+      "prerequisites": [],
+      "startSymbol": "bound-double-indented-break"
+    },
+    {
+      "id": "python-bound-indented-break",
+      "symbol": "break",
+      "effect": "emit-indented-break",
+      "argumentKind": "none",
+      "prerequisites": [],
+      "startSymbol": "bound-indented-break"
+    },
+    {
+      "id": "python-bound-triple-indented-break",
+      "symbol": "break",
+      "effect": "emit-triple-indented-break",
+      "argumentKind": "none",
+      "prerequisites": [],
+      "startSymbol": "bound-triple-indented-break"
     }
   ],
   "stringLiteralFormat": {

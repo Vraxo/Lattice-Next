@@ -67,6 +67,12 @@ public static class SemanticProgramPlanner
             return false;
         }
 
+        if (!SemanticProgramValidator.HasValidBreakContext(program.Requirements))
+        {
+            error = "An early repetition exit must be inside a loop, not across a function or method boundary.";
+            return false;
+        }
+
         var planned = ImmutableArray.CreateBuilder<PlannedProgramStatement>();
         var defined = new HashSet<string>(
             program.Collections.IsDefault
@@ -290,6 +296,13 @@ public static class SemanticProgramPlanner
                         pipeline,
                         planned,
                         out error))
+                    {
+                        return false;
+                    }
+
+                    break;
+                case BreakRequirement:
+                    if (!TryPlanBreak(depth, pack, pipeline, planned, out error))
                     {
                         return false;
                     }
@@ -843,6 +856,47 @@ public static class SemanticProgramPlanner
             effect,
             argumentKind: "none",
             argumentValue: "continue",
+            ImmutableDictionary<string, string>.Empty.WithComparers(StringComparer.Ordinal),
+            depth,
+            new HashSet<string>(StringComparer.Ordinal),
+            planned,
+            out error);
+    }
+
+    private static bool TryPlanBreak(
+        int depth,
+        GenerationLanguagePack pack,
+        SequenceGenerationPipeline pipeline,
+        ImmutableArray<PlannedProgramStatement>.Builder planned,
+        out string? error)
+    {
+        error = null;
+        string effect;
+        switch (depth)
+        {
+            case 0:
+                effect = "emit-break";
+                break;
+            case 1:
+                effect = "emit-indented-break";
+                break;
+            case 2:
+                effect = "emit-double-indented-break";
+                break;
+            case 3:
+                effect = "emit-triple-indented-break";
+                break;
+            default:
+                error = $"Program statements support at most {MaximumDepth} levels of nested blocks.";
+                return false;
+        }
+
+        return TryEmit(
+            pack,
+            pipeline,
+            effect,
+            argumentKind: "none",
+            argumentValue: "break",
             ImmutableDictionary<string, string>.Empty.WithComparers(StringComparer.Ordinal),
             depth,
             new HashSet<string>(StringComparer.Ordinal),
