@@ -515,6 +515,12 @@ public static class SequenceInputFactExtractor
                     : ImmutableDictionary<string, int>.Empty.WithComparers(StringComparer.Ordinal),
                 CollectionPositions = collectionPositions.TryGetValue(item.Key, out var factCollectionPositions)
                     ? factCollectionPositions.ToImmutableDictionary(StringComparer.Ordinal)
+                    : ImmutableDictionary<string, ImmutableArray<int>>.Empty.WithComparers(StringComparer.Ordinal),
+                CollectionSentenceEnds = collectionPositions.TryGetValue(item.Key, out var positionedCollections)
+                    ? positionedCollections.ToImmutableDictionary(
+                        entry => entry.Key,
+                        entry => entry.Value.Select(position => FindSentenceEnd(input, tokens, position)).ToImmutableArray(),
+                        StringComparer.Ordinal)
                     : ImmutableDictionary<string, ImmutableArray<int>>.Empty.WithComparers(StringComparer.Ordinal)
             })
             .ToImmutableArray();
@@ -1090,6 +1096,21 @@ public static class SequenceInputFactExtractor
         }
 
         return value.Length > 0;
+    }
+
+    private static int FindSentenceEnd(string input, ImmutableArray<EnglishToken> tokens, int position)
+    {
+        for (var index = position + 1; index < tokens.Length; index++)
+        {
+            var token = tokens[index];
+            if (!token.IsQuoted && token.IsPunctuation && token.Value is "." or "?" or "!" &&
+                !IsEmbeddedPeriod(input, token))
+            {
+                return index;
+            }
+        }
+
+        return tokens.Length;
     }
 
     private static bool IsEmbeddedPeriod(string input, EnglishToken token) =>

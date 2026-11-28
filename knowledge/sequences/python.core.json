@@ -523,7 +523,8 @@
           "named"
         ]
       ],
-      "repeatMatches": true
+      "repeatMatches": true,
+      "searchAllSentences": true
     },
     {
       "id": "capture-generic-scalar-condition-if",
@@ -563,7 +564,8 @@
           "if"
         ]
       ],
-      "repeatMatches": true
+      "repeatMatches": true,
+      "searchAllSentences": true
     },
     {
       "id": "capture-generic-scalar-condition-trailing-if",
@@ -6645,7 +6647,8 @@
           "named"
         ]
       ],
-      "repeatMatches": true
+      "repeatMatches": true,
+      "searchAllSentences": true
     },
     {
       "id": "capture-generic-import",

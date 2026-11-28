@@ -370,22 +370,34 @@ public static class SemanticProgramFactMapper
         var conditionFact = facts.FirstOrDefault(fact => fact.Id == ConditionFactId);
         if (conditionFact is not null)
         {
-            if (!TryGetExpressions(conditionFact, "condition", out var conditions) ||
-                conditions.Length != 1)
+            if (!TryGetExpressions(conditionFact, ConditionValueId, out var conditions) || conditions.IsDefaultOrEmpty)
             {
-                error = "A generic scalar conditional requires exactly one typed condition expression.";
+                error = "A generic conditional requires typed condition expressions.";
                 return false;
             }
 
-            condition = conditions[0];
-            conditionPosition = GetCollectionPositions(conditionFact, "condition", conditions.Length)[0];
-
-            // A trailing conditional states its requirement before the condition ("print 'adult' if ...",
-            // or "if ... print 'adult'"). Every requirement in such a request belongs to the true branch.
-            if (conditionFact.Values.TryGetValue(ConditionLayoutValueId, out var layout) &&
-                string.Equals(layout, TrailingConditionLayout, StringComparison.Ordinal))
+            var trailing = conditionFact.Values.TryGetValue(ConditionLayoutValueId, out var layout) &&
+                string.Equals(layout, TrailingConditionLayout, StringComparison.Ordinal);
+            if (!trailing && conditionFact.CollectionSentenceEnds.TryGetValue(ConditionValueId, out var sentenceEnds))
             {
-                conditionPosition = -1;
+                if (!TryProjectSentenceConditionals(conditionFact, conditions, sentenceEnds,
+                        branchSeparatorPosition, events, ref eventOrder, out error))
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                // Facts without request spans retain the existing scalar interpretation. A trailing
+                // conditional deliberately owns the requirements preceding its condition.
+                if (conditions.Length != 1)
+                {
+                    error = "A generic scalar conditional requires exactly one typed condition expression.";
+                    return false;
+                }
+
+                condition = conditions[0];
+                conditionPosition = trailing ? -1 : GetCollectionPositions(conditionFact, ConditionValueId, 1)[0];
             }
         }
 
@@ -2524,6 +2536,64 @@ public static class SemanticProgramFactMapper
             _ => 0
         };
         return quantity > 0;
+    }
+
+    /// <summary>
+    /// Builds prefix conditional bodies from request spans, innermost first. A condition owns the
+    /// statements through its sentence boundary; a later sentence is a sibling, not a branch statement.
+    /// </summary>
+    private static bool TryProjectSentenceConditionals(
+        SequenceSemanticFact fact,
+        ImmutableArray<SemanticExpression> conditions,
+        ImmutableArray<int> sentenceEnds,
+        int? separator,
+        ImmutableArray<RequirementEvent>.Builder events,
+        ref int eventOrder,
+        out string? error)
+    {
+        error = null;
+        if (sentenceEnds.IsDefault || sentenceEnds.Length != conditions.Length ||
+            !fact.CollectionPositions.TryGetValue(ConditionValueId, out var positions) ||
+            positions.Length != conditions.Length)
+        {
+            error = "Conditional request spans must align with their typed conditions.";
+            return false;
+        }
+
+        var separatorUsed = false;
+        foreach (var index in Enumerable.Range(0, conditions.Length).OrderByDescending(index => positions[index]))
+        {
+            var position = positions[index];
+            var end = sentenceEnds[index];
+            if (end <= position)
+            {
+                error = "A conditional request needs a non-empty source span.";
+                return false;
+            }
+
+            var children = Ordered(events.Where(item => item.Position > position && item.Position < end)).ToArray();
+            var hasElse = !separatorUsed && separator is { } boundary && boundary > position && boundary < end;
+            var thenBody = children.Where(item => !hasElse || item.Position < separator!.Value)
+                .Select(item => item.Requirement).ToImmutableArray();
+            var elseBody = children.Where(item => hasElse && item.Position > separator!.Value)
+                .Select(item => item.Requirement).ToImmutableArray();
+            if (thenBody.IsDefaultOrEmpty || (hasElse && elseBody.IsDefaultOrEmpty))
+            {
+                error = "A conditional request requires a statement in each declared branch.";
+                return false;
+            }
+
+            foreach (var child in children)
+            {
+                events.Remove(child);
+            }
+
+            events.Add(new RequirementEvent(position, eventOrder++, new ConditionalRequirement(
+                conditions[index], thenBody, elseBody)));
+            separatorUsed |= hasElse;
+        }
+
+        return true;
     }
 
     private static bool TryProjectImportsAndApiCalls(

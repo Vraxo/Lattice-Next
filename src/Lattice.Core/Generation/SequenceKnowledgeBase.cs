@@ -34,6 +34,13 @@ public sealed record SequenceSemanticFact(
     /// </summary>
     public ImmutableDictionary<string, ImmutableArray<int>> CollectionPositions { get; init; } =
         ImmutableDictionary<string, ImmutableArray<int>>.Empty.WithComparers(StringComparer.Ordinal);
+
+    /// <summary>
+    /// Exclusive sentence boundary for each positioned collection item. Quoted punctuation and embedded
+    /// periods do not end sentences. A boundary at the token count denotes the end of the request.
+    /// </summary>
+    public ImmutableDictionary<string, ImmutableArray<int>> CollectionSentenceEnds { get; init; } =
+        ImmutableDictionary<string, ImmutableArray<int>>.Empty.WithComparers(StringComparer.Ordinal);
 }
 
 public sealed record SequenceInputFactCapture(
