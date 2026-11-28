@@ -234,3 +234,8 @@ are tested. PR #616 verified generic early repetition exit.
 This composes ordinary nested requirements, not a close-handler template.
 The frozen request's global close-action wording, held-key actions, timing
 placement and complete composition are still unfinished.
+
+The composed close probe exposed a planner depth gap: the language pack already
+had a triple-indented assignment operation, but generic assignment planning
+stopped at depth two. Generic assignment now selects that existing operation
+at depth three, allowing prebound state updates inside while/iteration/condition.
