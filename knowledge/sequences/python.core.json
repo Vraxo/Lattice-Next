@@ -7339,6 +7339,210 @@
         "as",
         "circle"
       ]
+    },
+    {
+      "id": "capture-pygame-keyboard-state",
+      "matchTokens": [
+        "read",
+        "keyboard",
+        "state"
+      ],
+      "factId": "program.requirement.api-call",
+      "captures": [
+        {
+          "factId": "program.requirement.api-call",
+          "valueId": "contract",
+          "literalValue": "pygame-keys"
+        },
+        {
+          "factId": "program.requirement.api-default-result",
+          "valueId": "name",
+          "literalValue": "keys"
+        }
+      ],
+      "requiredAnySequences": [
+        [
+          "using",
+          "pygame"
+        ],
+        [
+          "import",
+          "pygame"
+        ]
+      ],
+      "repeatMatches": true,
+      "searchAllSentences": true
+    },
+    {
+      "id": "capture-pygame-pressed-keys",
+      "matchTokens": [
+        "read",
+        "pressed",
+        "keys"
+      ],
+      "factId": "program.requirement.api-call",
+      "captures": [
+        {
+          "factId": "program.requirement.api-call",
+          "valueId": "contract",
+          "literalValue": "pygame-keys"
+        },
+        {
+          "factId": "program.requirement.api-default-result",
+          "valueId": "name",
+          "literalValue": "keys"
+        }
+      ],
+      "requiredAnySequences": [
+        [
+          "using",
+          "pygame"
+        ],
+        [
+          "import",
+          "pygame"
+        ]
+      ],
+      "repeatMatches": true,
+      "searchAllSentences": true
+    },
+    {
+      "id": "capture-pygame-key-code-w",
+      "matchTokens": [
+        "read",
+        "w",
+        "key",
+        "code"
+      ],
+      "factId": "program.requirement.api-call",
+      "captures": [
+        {
+          "factId": "program.requirement.api-call",
+          "valueId": "contract",
+          "literalValue": "pygame-key-w"
+        },
+        {
+          "factId": "program.requirement.api-default-result",
+          "valueId": "name",
+          "literalValue": "key_code"
+        }
+      ],
+      "requiredAnySequences": [
+        [
+          "using",
+          "pygame"
+        ],
+        [
+          "import",
+          "pygame"
+        ]
+      ],
+      "repeatMatches": true,
+      "searchAllSentences": true
+    },
+    {
+      "id": "capture-pygame-key-code-s",
+      "matchTokens": [
+        "read",
+        "s",
+        "key",
+        "code"
+      ],
+      "factId": "program.requirement.api-call",
+      "captures": [
+        {
+          "factId": "program.requirement.api-call",
+          "valueId": "contract",
+          "literalValue": "pygame-key-s"
+        },
+        {
+          "factId": "program.requirement.api-default-result",
+          "valueId": "name",
+          "literalValue": "key_code"
+        }
+      ],
+      "requiredAnySequences": [
+        [
+          "using",
+          "pygame"
+        ],
+        [
+          "import",
+          "pygame"
+        ]
+      ],
+      "repeatMatches": true,
+      "searchAllSentences": true
+    },
+    {
+      "id": "capture-pygame-key-code-up",
+      "matchTokens": [
+        "read",
+        "up",
+        "arrow",
+        "key",
+        "code"
+      ],
+      "factId": "program.requirement.api-call",
+      "captures": [
+        {
+          "factId": "program.requirement.api-call",
+          "valueId": "contract",
+          "literalValue": "pygame-key-up"
+        },
+        {
+          "factId": "program.requirement.api-default-result",
+          "valueId": "name",
+          "literalValue": "key_code"
+        }
+      ],
+      "requiredAnySequences": [
+        [
+          "using",
+          "pygame"
+        ],
+        [
+          "import",
+          "pygame"
+        ]
+      ],
+      "repeatMatches": true,
+      "searchAllSentences": true
+    },
+    {
+      "id": "capture-pygame-key-code-down",
+      "matchTokens": [
+        "read",
+        "down",
+        "arrow",
+        "key",
+        "code"
+      ],
+      "factId": "program.requirement.api-call",
+      "captures": [
+        {
+          "factId": "program.requirement.api-call",
+          "valueId": "contract",
+          "literalValue": "pygame-key-down"
+        },
+        {
+          "factId": "program.requirement.api-default-result",
+          "valueId": "name",
+          "literalValue": "key_code"
+        }
+      ],
+      "requiredAnySequences": [
+        [
+          "using",
+          "pygame"
+        ],
+        [
+          "import",
+          "pygame"
+        ]
+      ],
+      "repeatMatches": true,
+      "searchAllSentences": true
     }
   ],
   "validations": [

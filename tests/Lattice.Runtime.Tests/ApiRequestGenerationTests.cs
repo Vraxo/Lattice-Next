@@ -171,6 +171,21 @@ public sealed class ApiRequestGenerationTests
             $"{expected}\n0\n765\n");
     }
 
+    [Theory]
+    [InlineData("keyboard state", "W", "keys", "code")]
+    [InlineData("pressed keys", "S", "state", "selected")]
+    [InlineData("keyboard state", "up arrow", "inputState", "upCode")]
+    [InlineData("pressed keys", "down arrow", "held", "downCode")]
+    public async Task Executes_natural_keyboard_acquisition_and_indexed_control_checks(
+        string wording, string key, string state, string codeName)
+    {
+        await GenerateAndExecute(
+            "Write a Python program using Pygame. Initialize Pygame. Open a window that is 32 wide and 24 tall. " +
+            $"Read {wording} saving result as {state}. Read the {key} key code saving result as {codeName}. " +
+            $"When {state}[{codeName}] then print 'held' otherwise print 'released'. Quit Pygame.",
+            "released\n");
+    }
+
     private static async Task<string> GenerateAndExecute(string request, string expected)
     {
         var client = new LatticeRuntimeClient();
