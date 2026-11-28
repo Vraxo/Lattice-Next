@@ -299,6 +299,9 @@ internal static class SemanticExpressionParser
                 return BooleanExpressionNormalizer.TryParse(source, syntax, out expression);
             case "value":
                 return TryParseValue(source, syntax, out expression);
+            case "text":
+                expression = new SemanticTextExpression(source);
+                return !string.IsNullOrWhiteSpace(source) && SemanticExpressionAnalysis.IsValid(expression);
             case "arguments":
                 if (string.IsNullOrWhiteSpace(source) || source.Length > MaximumSourceLength ||
                     !TryTokenize(source, syntax, out var argumentTokens))

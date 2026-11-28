@@ -6939,6 +6939,82 @@
       ],
       "repeatMatches": true,
       "searchAllSentences": true
+    },
+    {
+      "id": "capture-pygame-surface-clear",
+      "matchTokens": [
+        "clear"
+      ],
+      "factId": "program.requirement.api-call",
+      "captures": [
+        {
+          "factId": "program.requirement.api-call",
+          "valueId": "contract",
+          "literalValue": "pygame-surface-fill"
+        },
+        {
+          "factId": "program.requirement.api-text-parameters",
+          "valueId": "argument0",
+          "stopBeforeTokens": [
+            "to"
+          ],
+          "trimPrefixTokens": [
+            "the"
+          ],
+          "semanticExpressionKind": "value",
+          "preserveRawValue": true
+        },
+        {
+          "factId": "program.requirement.api-text-parameters",
+          "valueId": "argument1",
+          "startAfterTokens": [
+            "to"
+          ],
+          "stopBeforeTokens": [
+            "then"
+          ],
+          "semanticExpressionKind": "text"
+        }
+      ],
+      "requiredAnySequences": [
+        [
+          "using",
+          "pygame"
+        ],
+        [
+          "import",
+          "pygame"
+        ]
+      ],
+      "repeatMatches": true,
+      "searchAllSentences": true
+    },
+    {
+      "id": "capture-pygame-frame-presentation",
+      "matchTokens": [
+        "present",
+        "frame"
+      ],
+      "factId": "program.requirement.api-call",
+      "captures": [
+        {
+          "factId": "program.requirement.api-call",
+          "valueId": "contract",
+          "literalValue": "pygame-present"
+        }
+      ],
+      "requiredAnySequences": [
+        [
+          "using",
+          "pygame"
+        ],
+        [
+          "import",
+          "pygame"
+        ]
+      ],
+      "repeatMatches": true,
+      "searchAllSentences": true
     }
   ],
   "validations": [
