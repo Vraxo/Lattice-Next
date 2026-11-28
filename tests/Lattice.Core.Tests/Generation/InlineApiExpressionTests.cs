@@ -31,9 +31,9 @@ public sealed class InlineApiExpressionTests
         var syntax = Pack.InputSyntax! with { ApiReferenceFunctionName = "contract" };
         Assert.True(SemanticExpressionParser.TryParseValue("contract('pygame-key-s')", syntax, out var value));
         Assert.IsType<SemanticApiExpression>(value);
-        Assert.True(SemanticExpressionParser.TryParseValue("api('pygame-key-s')", syntax, out value));
+        Assert.True(SemanticExpressionParser.TryParseValue("api(1)", syntax, out value));
         Assert.IsType<SemanticFunctionCallExpression>(value);
-        Assert.True(SemanticExpressionParser.TryParseValue("api('pygame-key-s')", syntax with { ApiReferenceFunctionName = null }, out value));
+        Assert.True(SemanticExpressionParser.TryParseValue("api(1)", syntax with { ApiReferenceFunctionName = null }, out value));
         Assert.IsType<SemanticFunctionCallExpression>(value);
     }
 
