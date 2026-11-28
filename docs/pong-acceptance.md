@@ -218,3 +218,19 @@ realize early exit through the shared pipeline at the supported block depths.
 Normal-session tests execute changed thresholds, nested loops and collection
 iteration exits. This is a reusable prerequisite, not yet natural close-event
 interpretation. PR #615 verified keyboard acquisition and result-bound branches.
+
+## Event acquisition and composed shutdown increment
+
+`Read pending events` / `Read queued events` uses the declared event-retrieval
+contract, defaulting to `events`. `Read window close event code` uses the
+declared quit-event constant, defaulting to `close_code`. Existing explicit
+result clauses override these bindings. Tests inject a real Pygame close event
+and execute the actual generated response: an event-iteration conditional
+updates a prebound outer-loop flag and leaves the inner repetition, the outer
+loop stops after one frame, and shutdown is reached. An empty second queue
+read independently verifies event consumption. Changed aliases and bindings
+are tested. PR #616 verified generic early repetition exit.
+
+This composes ordinary nested requirements, not a close-handler template.
+The frozen request's global close-action wording, held-key actions, timing
+placement and complete composition are still unfinished.

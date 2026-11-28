@@ -7609,6 +7609,107 @@
       ],
       "repeatMatches": true,
       "searchAllSentences": true
+    },
+    {
+      "id": "capture-pygame-pending-events",
+      "matchTokens": [
+        "read",
+        "pending",
+        "events"
+      ],
+      "factId": "program.requirement.api-call",
+      "captures": [
+        {
+          "factId": "program.requirement.api-call",
+          "valueId": "contract",
+          "literalValue": "pygame-events"
+        },
+        {
+          "factId": "program.requirement.api-default-result",
+          "valueId": "name",
+          "literalValue": "events"
+        }
+      ],
+      "requiredAnySequences": [
+        [
+          "using",
+          "pygame"
+        ],
+        [
+          "import",
+          "pygame"
+        ]
+      ],
+      "repeatMatches": true,
+      "searchAllSentences": true
+    },
+    {
+      "id": "capture-pygame-queued-events",
+      "matchTokens": [
+        "read",
+        "queued",
+        "events"
+      ],
+      "factId": "program.requirement.api-call",
+      "captures": [
+        {
+          "factId": "program.requirement.api-call",
+          "valueId": "contract",
+          "literalValue": "pygame-events"
+        },
+        {
+          "factId": "program.requirement.api-default-result",
+          "valueId": "name",
+          "literalValue": "events"
+        }
+      ],
+      "requiredAnySequences": [
+        [
+          "using",
+          "pygame"
+        ],
+        [
+          "import",
+          "pygame"
+        ]
+      ],
+      "repeatMatches": true,
+      "searchAllSentences": true
+    },
+    {
+      "id": "capture-pygame-close-event-code",
+      "matchTokens": [
+        "read",
+        "window",
+        "close",
+        "event",
+        "code"
+      ],
+      "factId": "program.requirement.api-call",
+      "captures": [
+        {
+          "factId": "program.requirement.api-call",
+          "valueId": "contract",
+          "literalValue": "pygame-quit-event"
+        },
+        {
+          "factId": "program.requirement.api-default-result",
+          "valueId": "name",
+          "literalValue": "close_code"
+        }
+      ],
+      "requiredAnySequences": [
+        [
+          "using",
+          "pygame"
+        ],
+        [
+          "import",
+          "pygame"
+        ]
+      ],
+      "repeatMatches": true,
+      "searchAllSentences": true
     }
   ],
   "validations": [

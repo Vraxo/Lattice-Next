@@ -186,6 +186,36 @@ public sealed class ApiRequestGenerationTests
             "released\n");
     }
 
+    [Theory]
+    [InlineData("pending", "notifications", "closeKind")]
+    [InlineData("queued", "queue", "stopCode")]
+    public async Task Executes_injected_close_event_stopping_an_outer_request_derived_loop(
+        string wording, string queue, string kind)
+    {
+        var code = await GenerateAndExecute(
+            "Write a Python program using Pygame. Initialize Pygame. Open a window that is 32 wide and 24 tall. " +
+            $"Read window close event code saving result as {kind}. " +
+            $"Invoke api pygame-event with arguments ({kind}) saving result as closing. Invoke api pygame-post-event with arguments (closing). " +
+            "Set active to 1 and set frames to 0 then while active is greater than 0 then " +
+            $"read {wording} events saving result as {queue}. For each notification in {queue} then " +
+            $"when notification.type is equal to {kind} then set active to 0 then leave repetition. End repetition. " +
+            "Set frames to frames + 1. End repetition. Quit Pygame. Print frames then print active.",
+            "1\n0\n");
+        Assert.Contains("            break", code, StringComparison.Ordinal);
+        Assert.Contains("pygame.quit()\nprint(frames)", code, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task Executes_default_event_bindings_and_an_empty_second_read()
+    {
+        await GenerateAndExecute(
+            "Write a Python program using Pygame. Initialize Pygame. Open a window that is 32 wide and 24 tall. Read queued events. " +
+            "Read window close event code. Invoke api pygame-event with arguments (close_code) saving result as closing. Invoke api pygame-post-event with arguments (closing). " +
+            "Read pending events. Set seen to 0 then for each notification in events then when notification.type is equal to close_code then set seen to seen + 1. End repetition. " +
+            "Read queued events then for each notification in events then set seen to seen + 10. End repetition. Print seen. Quit Pygame.",
+            "1\n");
+    }
+
     private static async Task<string> GenerateAndExecute(string request, string expected)
     {
         var client = new LatticeRuntimeClient();
