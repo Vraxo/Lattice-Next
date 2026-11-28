@@ -175,6 +175,11 @@ internal static class GenerationInputSyntaxParser
             delimiters = delimiters.Add(expressionGrouping);
         }
 
+        if (syntax.SubscriptDelimiter is { } subscript && !delimiters.Contains(subscript))
+        {
+            delimiters = delimiters.Add(subscript);
+        }
+
         var callFormat = functionCallFormat ?? syntax.FunctionCallFormat;
         if (callFormat is not null)
         {

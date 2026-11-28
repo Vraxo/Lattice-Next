@@ -582,6 +582,19 @@ public sealed class GenerationLanguagePackLoader
             return false;
         }
 
+        if (syntax.SubscriptDelimiter is { } subscript &&
+            (!IsValidExpressionGroupingDelimiter(subscript) || subscript == expressionGroupingDelimiter ||
+             subscript.OpeningDelimiter == syntax.FunctionCallFormat.OpeningDelimiter ||
+             subscript.ClosingDelimiter == syntax.FunctionCallFormat.ClosingDelimiter ||
+             declaredDelimiters.Any(delimiter => delimiter != subscript &&
+                 (delimiter.OpeningDelimiter == subscript.OpeningDelimiter ||
+                  delimiter.ClosingDelimiter == subscript.ClosingDelimiter ||
+                  delimiter.OpeningDelimiter == subscript.ClosingDelimiter ||
+                  delimiter.ClosingDelimiter == subscript.OpeningDelimiter))))
+        {
+            return false;
+        }
+
         return true;
     }
 

@@ -546,6 +546,8 @@ internal static class SemanticExpressionAnalysis
         SemanticNameExpression => true,
         SemanticApiExpression => true,
         SemanticMemberAccessExpression => true,
+        SemanticMethodCallExpression => true,
+        SemanticSubscriptExpression => true,
         SemanticNumberExpression => true,
         SemanticFunctionCallExpression call => call.Arguments.All(IsArithmeticCore),
         SemanticUnaryExpression unary when unary.Operator is

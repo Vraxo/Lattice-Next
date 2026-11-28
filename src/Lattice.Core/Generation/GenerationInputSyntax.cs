@@ -25,6 +25,10 @@ public sealed record GenerationInputSyntax(
     /// </summary>
     public GenerationMemberAccessFormat? MemberAccessFormat { get; init; }
 
+    /// <summary>The delimiters selecting one element from a value, distinct from grouping and calls.</summary>
+    public GenerationDelimiterPair? SubscriptDelimiter { get; init; }
+
+
     /// <summary>
     /// How a program reads one argument it was started with. A pack without this format cannot render a
     /// program argument, so such requirements stay unrealizable rather than being emitted with invented syntax.
