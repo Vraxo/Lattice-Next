@@ -23,6 +23,20 @@ public sealed class ClauseLookaheadTests
     }
 
     [Theory]
+    [InlineData("Mark red item then mark blue item.", true)]
+    [InlineData("Mark red item.", false)]
+    [InlineData("Mark blue item then red item.", true)]
+    [InlineData("Mark 'red' item.", true)]
+    public void Negative_lookahead_disqualifies_only_the_current_unquoted_clause(string request, bool expected)
+    {
+        const string json = """
+            {"formatVersion":1,"inputRules":[{"id":"local-marker","matchTokens":["mark"],"forbiddenFollowingMatchTokens":["red","item"],"factId":"marker","repeatMatches":true,"searchAllSentences":true}]}
+            """;
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoad(json, out var knowledge, out var error), error);
+        Assert.Equal(expected, SequenceInputFactExtractor.TryExtract(knowledge!, request, out _, out _));
+    }
+
+    [Theory]
     [InlineData("null")]
     [InlineData("[1]")]
     [InlineData("[\"\"]")]
@@ -31,5 +45,7 @@ public sealed class ClauseLookaheadTests
     {
         var json = "{\"formatVersion\":1,\"inputRules\":[{\"id\":\"marker\",\"matchTokens\":[\"mark\"],\"factId\":\"marker\",\"followingMatchTokens\":" + value + "}]}";
         Assert.False(SequenceKnowledgeBaseLoader.TryLoad(json, out _, out _));
+        Assert.False(SequenceKnowledgeBaseLoader.TryLoad(
+            json.Replace("followingMatchTokens", "forbiddenFollowingMatchTokens", StringComparison.Ordinal), out _, out _));
     }
 }

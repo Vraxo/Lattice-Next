@@ -255,3 +255,22 @@ bounded frame loops with changed controls, variable names and speeds. These
 use SDL's released baseline and do not prove deterministic held movement. The
 canonical English held-key clauses and global timing/close-action placement
 remain unfinished. PR #617 verified composed injected-close shutdown.
+
+## Held-input conditional action increment
+
+`While the W key is held, set ...` (also S, up arrow and down arrow) maps to a
+regular conditional requirement whose boolean is an indexed keyboard-state API
+value compared with true. It is not a blocking while loop: each containing
+frame evaluates the condition once. The action remains an ordinary captured
+assignment with request-derived identifier, operator and speed. No game
+objects or movement statements are stored in the knowledge.
+
+Generic negative clause lookahead disqualifies only the continuous-loop rule's
+held-key occurrence, preserving the outer while loop in the same request.
+Tests use the actual normal-session response, first with SDL released state and
+then through a test-only input adapter returning the selected held key. The
+response source is unchanged and passed separately to compile/exec. Changed
+controls/identifiers/speeds must update state twice across two frames. This is
+not a manual playability check or full canonical-request proof. PR #618 verified
+inline API expression composition. Global timing and close interpretation and
+complete game composition remain pending.

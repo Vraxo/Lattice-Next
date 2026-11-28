@@ -240,6 +240,26 @@ public sealed class ApiRequestGenerationTests
             "matched\n");
     }
 
+    [Theory]
+    [InlineData("W", "w", "position", 5)]
+    [InlineData("S", "s", "offset", 3)]
+    [InlineData("up arrow", "UP", "height", 7)]
+    [InlineData("down arrow", "DOWN", "distance", 9)]
+    public async Task Executes_held_key_wording_with_released_and_deterministic_held_input(
+        string key, string constant, string variable, int step)
+    {
+        var code = await GenerateAndExecute(
+            "Write a Python program using Pygame. Initialize Pygame. Open a window that is 32 wide and 24 tall. " +
+            $"Set frame to 0 and set {variable} to 10 then while frame is less than 2 then set frame to frame + 1. " +
+            $"While the {key} key is held, set {variable} to {variable} + {step}. End repetition. Print {variable}. Quit Pygame.",
+            "10\n");
+        // Test-only input boundary: compile/execute the untouched response passed as a separate argument.
+        var runner = "import sys, pygame\n" +
+            $"pygame.key.get_pressed = lambda: {{pygame.K_{constant}: True}}\n" +
+            "exec(compile(sys.argv[1], '<generated>', 'exec'))";
+        await Execute(code, $"{10 + 2 * step}\n", runner);
+    }
+
     private static async Task<string> GenerateAndExecute(string request, string expected)
     {
         var client = new LatticeRuntimeClient();
@@ -257,7 +277,7 @@ public sealed class ApiRequestGenerationTests
         return code;
     }
 
-    private static async Task Execute(string code, string expected)
+    private static async Task Execute(string code, string expected, string? runner = null)
     {
         var info = new ProcessStartInfo(OperatingSystem.IsWindows() ? "python" : "python3")
         {
@@ -269,7 +289,11 @@ public sealed class ApiRequestGenerationTests
         info.Environment["SDL_AUDIODRIVER"] = "dummy";
         info.Environment["PYGAME_HIDE_SUPPORT_PROMPT"] = "1";
         info.ArgumentList.Add("-c");
-        info.ArgumentList.Add(code);
+        info.ArgumentList.Add(runner ?? code);
+        if (runner is not null)
+        {
+            info.ArgumentList.Add(code);
+        }
         using var process = Process.Start(info);
         Assert.NotNull(process);
         var output = process.StandardOutput.ReadToEndAsync();
