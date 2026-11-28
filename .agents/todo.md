@@ -71,7 +71,7 @@ The result must be genuinely playable: a game window, two controllable paddles, 
 
 **Section exit:** The canonical request becomes a complete, ordered, language-neutral requirement tree through normal request interpretation. No fact, rule, or mapper branch is specific to Pong.
 
-**Result:** PRs #603–#607 merged ordered state, scoped nested blocks, and member/method/index parsing with full CI and normal-session execution. API argument/result request capture is prepared with list literals, typed argument lists, and headless window/timing/event execution tests. Definite scope checks and complete interactive interpretation remain pending.
+**Result:** PRs #603–#608 merged ordered state, scoped nested blocks, member/index expressions, and API argument/result capture with full CI and normal-session execution. Definite-binding checks for skipped branches and empty iterations are prepared, including frame-to-frame state tests. The canonical interactive phrasing and complete requirement-tree proof remain pending.
 
 ## 5. Compose and execute the game incrementally
 

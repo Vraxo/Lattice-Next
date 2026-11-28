@@ -801,7 +801,7 @@ public static class SemanticProgramPlanner
             return false;
         }
 
-        defined.Add(iteration.ItemName);
+        // The source may be empty, so the loop does not definitely introduce its item binding.
         return true;
     }
 
@@ -1608,8 +1608,7 @@ public static class SemanticProgramPlanner
             return false;
         }
 
-        defined.Add(iteration.KeyName);
-        defined.Add(iteration.ValueName);
+        // Neither item name is definitely assigned when the source may be empty.
         return true;
     }
 
@@ -2692,7 +2691,7 @@ public static class SemanticProgramPlanner
 
         if (elseRequirements.IsEmpty)
         {
-            defined.UnionWith(thenDefined);
+            // The branch may not execute. Only names bound before the conditional remain definite.
             return true;
         }
 

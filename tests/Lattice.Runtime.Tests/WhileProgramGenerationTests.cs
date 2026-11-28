@@ -111,6 +111,34 @@ public sealed class WhileProgramGenerationTests
         await Execute(string.Join('\n', lines[(start + 1)..end]), expected);
     }
 
+    [Theory]
+    [InlineData(
+        "Write a Python program that set counter to 0 then set total to 0 then while counter is less than 3 then when counter is less than 2 then set total to total + 2. Set counter to counter + 1. End repetition. Print total.",
+        "4\n")]
+    [InlineData(
+        "Write a Python program that set frame to 0 then set position to 5 then while frame is less than 4 then when frame is less than 3 then set position to position + 3. Set frame to frame + 1. End repetition. Print position.",
+        "14\n")]
+    [InlineData(
+        "Write a Python program that set letter to 'start' then set text to '' then for each letter in text then print letter. End repetition. Print letter.",
+        "start\n")]
+    [InlineData(
+        "Write a Python program that set last to '' then set text to 'ab' then for each letter in text then set last to letter. End repetition. Print last.",
+        "b\n")]
+    public async Task Preserves_prebound_state_across_conditional_and_repetition_bodies(string request, string expected)
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+        var result = await session.SubmitAsync(request);
+        var utterance = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, utterance.Kind);
+        var fence = new string('`', 3);
+        var lines = utterance.Message!.Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n');
+        var start = Array.IndexOf(lines, fence + "python");
+        var end = Array.IndexOf(lines, fence, start + 1);
+        Assert.True(start >= 0 && end > start);
+        await Execute(string.Join('\n', lines[(start + 1)..end]), expected);
+    }
+
     private static async Task Execute(string code, string expected)
     {
         var info = new ProcessStartInfo(OperatingSystem.IsWindows() ? "python" : "python3")
