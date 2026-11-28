@@ -1117,8 +1117,8 @@ public static class SequenceInputFactExtractor
         token.Value == "." &&
         token.Start > 0 &&
         token.Start + token.Length < input.Length &&
-        char.IsLetterOrDigit(input[token.Start - 1]) &&
-        char.IsLetterOrDigit(input[token.Start + token.Length]);
+        !char.IsWhiteSpace(input[token.Start - 1]) &&
+        (char.IsLetterOrDigit(input[token.Start + token.Length]) || input[token.Start + token.Length] == '_');
 
     private static bool MatchesSequenceAt(
         ImmutableArray<EnglishToken> tokens,

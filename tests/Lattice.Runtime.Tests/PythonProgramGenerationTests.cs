@@ -1219,6 +1219,29 @@ public sealed class PythonProgramGenerationTests
         await AssertPythonOutput(code, expected);
     }
 
+    [Theory]
+    [InlineData(
+        "Write a Python program. Set text to 'abc'. Set result to text.upper()[1] then print result.",
+        "B")]
+    [InlineData(
+        "Write a Python program. Set message to 'hello'. Set letter to message.upper()[3] then print letter.",
+        "L")]
+    [InlineData(
+        "Write a Python program that set text to ' 12 ' then set result to text.strip().isdigit() then print result.",
+        "True")]
+    [InlineData(
+        "Write a Python program that set text to 'abc' then when text[0] is equal to 'a' then print text.upper()[1].",
+        "B")]
+    public async Task Generates_and_executes_request_derived_member_calls_and_indexed_values(string request, string expected)
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+        var result = await session.SubmitAsync(request);
+        var utterance = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, utterance.Kind);
+        await AssertPythonOutput(ExtractGeneratedPythonCode(utterance.Message!), expected);
+    }
+
     private static async Task AssertPythonOutput(string code, string expectedOutput, string? inputFileName = null, string? inputFileContent = null, bool useTemporaryDirectory = false, bool createSampleDirectory = false, string? programArgument = null)
     {
         string? workingDirectory = null;

@@ -3761,6 +3761,10 @@
     },
     "programArgumentFormat": {
       "format": "sys.argv[{0}]"
+    },
+    "subscriptDelimiter": {
+      "openingDelimiter": "[",
+      "closingDelimiter": "]"
     }
   },
   "interpolationFormat": {

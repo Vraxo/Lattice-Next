@@ -16,6 +16,7 @@ internal static class SemanticExpressionParser
         OpenDelimiter,
         CloseDelimiter,
         ArgumentSeparator,
+        MemberSeparator,
         End
     }
 
@@ -66,6 +67,65 @@ internal static class SemanticExpressionParser
         }
 
         private bool TryParsePrefixOrPrimary(out SemanticExpression? expression)
+        {
+            if (!TryParsePrimary(out expression))
+            {
+                return false;
+            }
+
+            while (true)
+            {
+                if (Current.Kind == TokenKind.MemberSeparator)
+                {
+                    position++;
+                    if (Current.Kind != TokenKind.Identifier)
+                    {
+                        return false;
+                    }
+
+                    expression = new SemanticMemberAccessExpression(expression!, Current.Value);
+                    position++;
+                }
+                else if (Current.Kind == TokenKind.OpenDelimiter &&
+                         Current.Value == syntax.FunctionCallFormat.OpeningDelimiter)
+                {
+                    if (!TryParseArguments(out var arguments))
+                    {
+                        return false;
+                    }
+
+                    expression = expression switch
+                    {
+                        SemanticNameExpression name => new SemanticFunctionCallExpression(name.Name, arguments),
+                        SemanticMemberAccessExpression member => new SemanticMethodCallExpression(member.Target, member.Member, arguments),
+                        _ => null
+                    };
+                    if (expression is null)
+                    {
+                        return false;
+                    }
+                }
+                else if (Current.Kind == TokenKind.OpenDelimiter && syntax.SubscriptDelimiter is { } subscript &&
+                         Current.Value == subscript.OpeningDelimiter)
+                {
+                    position++;
+                    if (!TryParseExpression(0, out var key) || Current.Kind != TokenKind.CloseDelimiter ||
+                        Current.Value != subscript.ClosingDelimiter)
+                    {
+                        return false;
+                    }
+
+                    position++;
+                    expression = new SemanticSubscriptExpression(expression!, key!);
+                }
+                else
+                {
+                    return true;
+                }
+            }
+        }
+
+        private bool TryParsePrimary(out SemanticExpression? expression)
         {
             expression = null;
             if (Current.Kind == TokenKind.Operator && TryGetOperator(Current, "prefix", out var prefix))
@@ -140,22 +200,20 @@ internal static class SemanticExpressionParser
                 }
             }
 
-            var name = Current.Value;
+            expression = new SemanticNameExpression(Current.Value);
             position++;
-            if (Current.Kind != TokenKind.OpenDelimiter ||
-                Current.Value != syntax.FunctionCallFormat.OpeningDelimiter)
-            {
-                expression = new SemanticNameExpression(name);
-                return true;
-            }
+            return true;
+        }
 
+        private bool TryParseArguments(out ImmutableArray<SemanticExpression> values)
+        {
+            values = [];
             position++;
             var arguments = ImmutableArray.CreateBuilder<SemanticExpression>();
             if (Current.Kind == TokenKind.CloseDelimiter &&
                 Current.Value == syntax.FunctionCallFormat.ClosingDelimiter)
             {
                 position++;
-                expression = new SemanticFunctionCallExpression(name, arguments.ToImmutable());
                 return true;
             }
 
@@ -180,7 +238,7 @@ internal static class SemanticExpressionParser
                 }
 
                 position++;
-                expression = new SemanticFunctionCallExpression(name, arguments.ToImmutable());
+                values = arguments.ToImmutable();
                 return true;
             }
         }
@@ -383,6 +441,13 @@ internal static class SemanticExpressionParser
             {
                 builder.Add(new Token(TokenKind.Number, number));
                 index = numberEnd;
+                continue;
+            }
+
+            if (syntax.MemberAccessFormat is { } member && StartsWith(source, index, member.Separator))
+            {
+                builder.Add(new Token(TokenKind.MemberSeparator, member.Separator));
+                index += member.Separator.Length;
                 continue;
             }
 
