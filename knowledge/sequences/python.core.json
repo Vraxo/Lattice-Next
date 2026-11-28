@@ -7015,6 +7015,146 @@
       ],
       "repeatMatches": true,
       "searchAllSentences": true
+    },
+    {
+      "id": "capture-pygame-clock-construction",
+      "matchTokens": [
+        "create",
+        "clock"
+      ],
+      "factId": "program.requirement.api-call",
+      "captures": [
+        {
+          "factId": "program.requirement.api-call",
+          "valueId": "contract",
+          "literalValue": "pygame-clock"
+        },
+        {
+          "factId": "program.requirement.api-default-result",
+          "valueId": "name",
+          "literalValue": "clock"
+        }
+      ],
+      "requiredAnySequences": [
+        [
+          "using",
+          "pygame"
+        ],
+        [
+          "import",
+          "pygame"
+        ]
+      ],
+      "repeatMatches": true,
+      "searchAllSentences": true
+    },
+    {
+      "id": "capture-pygame-frame-rate-limit",
+      "matchTokens": [
+        "limit",
+        "frames",
+        "to"
+      ],
+      "factId": "program.requirement.api-call",
+      "captures": [
+        {
+          "factId": "program.requirement.api-call",
+          "valueId": "contract",
+          "literalValue": "pygame-tick"
+        },
+        {
+          "factId": "program.requirement.api-parameters",
+          "valueId": "argument0",
+          "startAfterTokens": [
+            "using"
+          ],
+          "stopBeforeTokens": [
+            "saving",
+            "save",
+            "then"
+          ],
+          "trimPrefixTokens": [
+            "the"
+          ],
+          "semanticExpressionKind": "value",
+          "preserveRawValue": true
+        },
+        {
+          "factId": "program.requirement.api-parameters",
+          "valueId": "argument1",
+          "stopBeforeTokens": [
+            "frames"
+          ],
+          "semanticExpressionKind": "value",
+          "preserveRawValue": true
+        }
+      ],
+      "requiredAnySequences": [
+        [
+          "using",
+          "pygame"
+        ],
+        [
+          "import",
+          "pygame"
+        ]
+      ],
+      "repeatMatches": true,
+      "searchAllSentences": true
+    },
+    {
+      "id": "capture-pygame-frame-rate-cap",
+      "matchTokens": [
+        "cap",
+        "frames",
+        "to"
+      ],
+      "factId": "program.requirement.api-call",
+      "captures": [
+        {
+          "factId": "program.requirement.api-call",
+          "valueId": "contract",
+          "literalValue": "pygame-tick"
+        },
+        {
+          "factId": "program.requirement.api-parameters",
+          "valueId": "argument0",
+          "startAfterTokens": [
+            "using"
+          ],
+          "stopBeforeTokens": [
+            "saving",
+            "save",
+            "then"
+          ],
+          "trimPrefixTokens": [
+            "the"
+          ],
+          "semanticExpressionKind": "value",
+          "preserveRawValue": true
+        },
+        {
+          "factId": "program.requirement.api-parameters",
+          "valueId": "argument1",
+          "stopBeforeTokens": [
+            "frames"
+          ],
+          "semanticExpressionKind": "value",
+          "preserveRawValue": true
+        }
+      ],
+      "requiredAnySequences": [
+        [
+          "using",
+          "pygame"
+        ],
+        [
+          "import",
+          "pygame"
+        ]
+      ],
+      "repeatMatches": true,
+      "searchAllSentences": true
     }
   ],
   "validations": [

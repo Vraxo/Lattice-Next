@@ -152,3 +152,17 @@ mechanism for the requested width and height; there is no window or library
 branch in the mapper. Tests execute changed dimensions and computed dimensions
 through normal sessions. This slice does not establish the remaining timing,
 held-input, drawing, and close-action interpretation of the frozen request.
+
+## Explicit timing request increment
+
+Natural `Create a clock` maps to the declared clock API with a default `clock`
+binding (an explicit result name overrides it). `Limit frames to RATE frames per
+second using NAME` and `Cap frames to RATE frames per second using NAME` map
+to the existing tick contract through generic argument slots. The normal result
+clause can bind elapsed milliseconds for ordinary arithmetic. Tests exercise
+changed rates, computed values, changed names, repeated calls and bounded loops.
+This does not yet interpret the frozen request's global frame-rate sentence as
+a per-iteration scheduling constraint; that placement remains unfinished.
+
+PR #611 verified natural surface clearing/presentation, including actual changed
+color pixels and receiver names through normal-session generated Python.

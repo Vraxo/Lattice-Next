@@ -71,7 +71,7 @@ The result must be genuinely playable: a game window, two controllable paddles, 
 
 **Section exit:** The canonical request becomes a complete, ordered, language-neutral requirement tree through normal request interpretation. No fact, rule, or mapper branch is specific to Pong.
 
-**Result:** PRs #603–#610 merged scoped request interpretation and natural window setup with full CI and normal-session execution. Natural surface-clear/frame-presentation mapping is prepared with text-valued API captures and changed-color/receiver pixel tests. Remaining drawing, timing, held-input, and close-action phrasing and the complete canonical tree are still pending.
+**Result:** PRs #603–#611 merged scoped request interpretation, natural window setup, and surface clear/frame presentation with full CI and normal-session execution. Natural clock creation and explicit frame-limit calls are prepared for verification. Canonical loop-level timing placement, drawing, held-input, close-action phrasing, and the complete canonical tree are still pending.
 
 ## 5. Compose and execute the game incrementally
 
