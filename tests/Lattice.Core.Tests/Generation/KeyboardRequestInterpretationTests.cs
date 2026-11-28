@@ -40,6 +40,16 @@ public sealed class KeyboardRequestInterpretationTests
         Assert.DoesNotContain(facts, fact => fact.Id == "program.requirement.api-call");
     }
 
+    [Fact]
+    public void Preserves_both_conditional_branches_after_a_natural_api_result()
+    {
+        var (program, code) = Interpret("Write a Python program using Pygame. Read keyboard state saving result as state. Read W key code saving result as selected. When state[selected] == True then print 'held' otherwise print 'released'.");
+        var conditional = Assert.IsType<ConditionalRequirement>(program.Requirements[3]);
+        Assert.Single(conditional.ThenRequirements);
+        Assert.Single(conditional.ElseRequirements);
+        Assert.Contains("else:", code, StringComparison.Ordinal);
+    }
+
     private static (SemanticProgram Program, string Code) Interpret(string request)
     {
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var error), error);
