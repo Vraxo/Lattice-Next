@@ -694,6 +694,16 @@
         [
           "invoke",
           "api"
+        ],
+        [
+          "saving",
+          "result",
+          "as"
+        ],
+        [
+          "save",
+          "result",
+          "as"
         ]
       ],
       "forbiddenAnySequences": [
