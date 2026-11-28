@@ -6953,7 +6953,7 @@
           "literalValue": "pygame-surface-fill"
         },
         {
-          "factId": "program.requirement.api-parameters",
+          "factId": "program.requirement.api-text-parameters",
           "valueId": "argument0",
           "stopBeforeTokens": [
             "to"
@@ -6965,7 +6965,7 @@
           "preserveRawValue": true
         },
         {
-          "factId": "program.requirement.api-parameters",
+          "factId": "program.requirement.api-text-parameters",
           "valueId": "argument1",
           "startAfterTokens": [
             "to"
