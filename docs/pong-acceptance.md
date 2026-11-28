@@ -193,3 +193,15 @@ clause (before unquoted `then` or sentence punctuation). Rectangle and circle
 rules use this instead of request-global shape keywords. The generic extractor
 does not know about shapes or libraries. PR #613 verified rectangle drawing.
 Canonical scheduling, held-input and close handling remain unfinished.
+
+## Keyboard acquisition increment
+
+`Read keyboard state` / `Read pressed keys` invokes the existing declared key
+state contract, defaulting to `keys` unless an explicit result name is supplied.
+`Read the W key code`, `Read the S key code`, and up/down arrow equivalents
+invoke declared constant contracts, defaulting to `key_code`. Ordinary indexing
+and conditional semantics then inspect those values. Changed controls and
+binding names are tested at interpretation and normal-session execution.
+The SDL dummy driver supplies the released-state baseline; deterministic held
+input and the canonical held-key action wording still require later work.
+PR #614 verified mixed circle/rectangle requests and pixel execution checks.
