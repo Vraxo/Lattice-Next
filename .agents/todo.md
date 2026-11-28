@@ -63,7 +63,7 @@ The result must be genuinely playable: a game window, two controllable paddles, 
 ## 4. Interpret a complete interactive program request
 
 - [x] Capture imports and API-contract references from the request and project them onto the existing import/call requirements.
-- [ ] Capture ordered initial state declarations and assignments with request-derived names and values.
+- [x] Capture ordered initial state declarations and assignments with request-derived names and values.
 - [ ] Capture nested while, collection-iteration, and conditional bodies as ordered requirement trees.
 - [ ] Capture arithmetic, comparisons, member access, and indexed values as semantic expression trees for state updates and collision conditions.
 - [ ] Preserve dependencies and scope across nested blocks, including values updated in one frame and read in the next.
@@ -71,7 +71,7 @@ The result must be genuinely playable: a game window, two controllable paddles, 
 
 **Section exit:** The canonical request becomes a complete, ordered, language-neutral requirement tree through normal request interpretation. No fact, rule, or mapper branch is specific to Pong.
 
-**Result:** PR #603 merged generic imports/nullary API references and normal-session setup/shutdown execution with full CI. Ordered state capture across sentences is prepared with semantic/rejection and normal-session execution tests. API argument/result capture and interactive block interpretation remain pending.
+**Result:** PRs #603/#604 merged import/API references and ordered state capture with full CI. Sentence-bounded conditional projection (including siblings and branches inside a while body) is prepared with semantic/rejection and normal-session execution tests. General loop/iteration block capture, API argument/result capture, and complete interactive interpretation remain pending.
 
 ## 5. Compose and execute the game incrementally
 

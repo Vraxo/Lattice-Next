@@ -30,7 +30,6 @@ public sealed class WhileInterpretationTests
     [InlineData("Write a Python program that set count to 0 then while count is less than 3 then.")]
     [InlineData("Write a Python program that set count to 0 then while count + * 3 then print count.")]
     [InlineData("Write a Python program that set count to 0 then while count is less than 3 then while count is less than 2 then print count.")]
-    [InlineData("Write a Python program that set count to 0 then while count is less than 3 then when count is at least 1 then print count.")]
     public void Rejects_incomplete_malformed_or_unscoped_bodies(string request)
     {
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var error), error);

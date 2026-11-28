@@ -53,6 +53,35 @@ public sealed class WhileProgramGenerationTests
         await Execute(text[start..end].TrimEnd(), "0\n2\n4\n");
     }
 
+    [Theory]
+    [InlineData(
+        "Write a Python program that set count to 0 then while count is less than 4 then set count to count + 1. When count is equal to 2 then print 'two'. When count is equal to 4 then print 'four'.",
+        "two\nfour\n")]
+    [InlineData(
+        "Create a Python program that set position to 1 then while position is less than 8 then set position to position + 2. When position is equal to 3 then print 'three'. When position is at least 7 then print position.",
+        "three\n7\n9\n")]
+    [InlineData(
+        "Write a Python program that set amount to 2 then when amount is greater than 0 then when amount is less than 5 then print 'inside'. Set amount to 8 then print amount.",
+        "inside\n8\n")]
+    [InlineData(
+        "Write a Python program that set amount to 0 then when amount is greater than 0 then print 'wrong'. Set amount to 7 then print amount.",
+        "7\n")]
+    public async Task Executes_request_derived_sentence_scoped_conditions(string request, string expected)
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+        var result = await session.SubmitAsync(request);
+        var utterance = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeTurnStatus.Completed, result.Status);
+        Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, utterance.Kind);
+        var fence = new string('`', 3);
+        var lines = utterance.Message!.Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n');
+        var start = Array.IndexOf(lines, fence + "python");
+        var end = Array.IndexOf(lines, fence, start + 1);
+        Assert.True(start >= 0 && end > start);
+        await Execute(string.Join('\n', lines[(start + 1)..end]), expected);
+    }
+
     private static async Task Execute(string code, string expected)
     {
         var info = new ProcessStartInfo(OperatingSystem.IsWindows() ? "python" : "python3")
