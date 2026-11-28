@@ -239,3 +239,19 @@ The composed close probe exposed a planner depth gap: the language pack already
 had a triple-indented assignment operation, but generic assignment planning
 stopped at depth two. Generic assignment now selects that existing operation
 at depth three, allowing prebound state updates inside while/iteration/condition.
+
+## Inline API value interpretation increment
+
+The Python input syntax can declare a contract-reference function name (`api`).
+`api('CONTRACT', arguments...)` becomes `SemanticApiExpression`, including when
+nested in ordinary indexing, arithmetic, member access or another API call.
+The first argument must be a literal contract name; the selected pack still
+checks declared contracts and exact arity during realization. Other calls
+remain ordinary function/method expressions, and packs can rename or omit
+this notation. There is no library or control-specific parser branch.
+
+Normal-session probes check inline keyboard lookup/constant composition in
+bounded frame loops with changed controls, variable names and speeds. These
+use SDL's released baseline and do not prove deterministic held movement. The
+canonical English held-key clauses and global timing/close-action placement
+remain unfinished. PR #617 verified composed injected-close shutdown.

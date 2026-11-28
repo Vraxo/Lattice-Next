@@ -492,6 +492,11 @@ public sealed class GenerationLanguagePackLoader
             !IsValidFunctionCallFormat(syntax.FunctionCallFormat) ||
             (syntax.MemberAccessFormat is { } memberAccessFormat &&
                 !IsValidMemberAccessFormat(memberAccessFormat, syntax)) ||
+            (syntax.ApiReferenceFunctionName is { } apiName &&
+                (apiName.Length > 64 || !GenerationInputSyntaxParser.IsIdentifier(apiName, syntax) ||
+                 apiName == syntax.BooleanLiteralFormat?.TrueLiteral ||
+                 apiName == syntax.BooleanLiteralFormat?.FalseLiteral ||
+                 syntax.ExpressionOperators.Any(operation => operation.Token == apiName))) ||
             (syntax.ProgramArgumentFormat?.Format is { } programArgumentFormat &&
                 (!programArgumentFormat.Contains("{0}", StringComparison.Ordinal) ||
                  programArgumentFormat.Length > 64)) ||

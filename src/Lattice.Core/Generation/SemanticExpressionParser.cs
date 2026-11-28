@@ -102,6 +102,21 @@ internal static class SemanticExpressionParser
                         return false;
                     }
 
+                    if (expression is SemanticNameExpression apiName &&
+                        apiName.Name == syntax.ApiReferenceFunctionName)
+                    {
+                        if (arguments.IsDefaultOrEmpty || arguments[0] is not SemanticTextExpression contract)
+                        {
+                            return false;
+                        }
+
+                        expression = new SemanticApiExpression(contract.Value)
+                        {
+                            Arguments = arguments.RemoveAt(0)
+                        };
+                        continue;
+                    }
+
                     expression = expression switch
                     {
                         SemanticNameExpression name => new SemanticFunctionCallExpression(name.Name, arguments),

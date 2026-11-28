@@ -3837,7 +3837,8 @@
     "listLiteralDelimiter": {
       "openingDelimiter": "[",
       "closingDelimiter": "]"
-    }
+    },
+    "apiReferenceFunctionName": "api"
   },
   "interpolationFormat": {
     "opening": "f\"",
