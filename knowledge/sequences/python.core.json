@@ -6739,6 +6739,65 @@
       ],
       "repeatMatches": true,
       "searchAllSentences": true
+    },
+    {
+      "id": "capture-generic-collection-iteration",
+      "matchTokens": [
+        "for",
+        "each"
+      ],
+      "factId": "program.requirement.iteration",
+      "captures": [
+        {
+          "factId": "program.requirement.iteration",
+          "valueId": "item",
+          "stopBeforeTokens": [
+            "in"
+          ]
+        },
+        {
+          "factId": "program.requirement.iteration",
+          "valueId": "source",
+          "startAfterTokens": [
+            "in"
+          ],
+          "stopBeforeTokens": [
+            "then"
+          ],
+          "semanticExpressionKind": "value",
+          "preserveRawValue": true
+        }
+      ],
+      "requiredAllSequences": [
+        [
+          "then"
+        ]
+      ],
+      "forbiddenAnySequences": [
+        [
+          "function",
+          "named"
+        ]
+      ],
+      "repeatMatches": true,
+      "searchAllSentences": true
+    },
+    {
+      "id": "capture-repetition-end",
+      "matchTokens": [
+        "end",
+        "repetition"
+      ],
+      "factId": "program.requirement.repetition-end",
+      "captures": [
+        {
+          "factId": "program.requirement.repetition-end",
+          "valueId": "end",
+          "literalValue": "end"
+        }
+      ],
+      "repeatMatches": true,
+      "searchAllSentences": true
     }
   ],
   "validations": [

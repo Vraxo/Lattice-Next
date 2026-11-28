@@ -6,6 +6,7 @@ namespace Lattice.Core.Generation;
 public static class SemanticProgramFactMapper
 {
     private sealed record RequirementEvent(int Position, int Order, ProgramRequirement Requirement);
+    private sealed record RequirementBlock(int Position, int End, ProgramRequirement Header);
 
     private const string AssignmentTargetFactId = "program.assignment.target";
     private const string AssignmentValueFactId = "program.assignment.value";
@@ -365,6 +366,7 @@ public static class SemanticProgramFactMapper
             return false;
         }
 
+        var blocks = new List<RequirementBlock>();
         SemanticExpression? condition = null;
         var conditionPosition = 0;
         var conditionFact = facts.FirstOrDefault(fact => fact.Id == ConditionFactId);
@@ -380,10 +382,18 @@ public static class SemanticProgramFactMapper
                 string.Equals(layout, TrailingConditionLayout, StringComparison.Ordinal);
             if (!trailing && conditionFact.CollectionSentenceEnds.TryGetValue(ConditionValueId, out var sentenceEnds))
             {
-                if (!TryProjectSentenceConditionals(conditionFact, conditions, sentenceEnds,
-                        branchSeparatorPosition, events, ref eventOrder, out error))
+                if (sentenceEnds.IsDefault || sentenceEnds.Length != conditions.Length ||
+                    !conditionFact.CollectionPositions.TryGetValue(ConditionValueId, out var positions) ||
+                    positions.Length != conditions.Length)
                 {
+                    error = "Conditional request spans must align with their typed conditions.";
                     return false;
+                }
+
+                for (var index = 0; index < conditions.Length; index++)
+                {
+                    blocks.Add(new RequirementBlock(positions[index], sentenceEnds[index],
+                        new ConditionalRequirement(conditions[index], [], [])));
                 }
             }
             else
@@ -407,31 +417,19 @@ public static class SemanticProgramFactMapper
             requirements.Add(declaration);
         }
 
-        var whileFact = facts.FirstOrDefault(fact => fact.Id == WhileFactId);
-        if (whileFact is not null)
+        if (!TryCollectLoopBlocks(facts, blocks, out error) ||
+            !TryProjectRequestBlocks(blocks, branchSeparatorPosition, events, ref eventOrder, out error))
         {
-            if (condition is not null ||
-                !TryGetExpressions(whileFact, ConditionValueId, out var loopConditions) ||
-                loopConditions.Length != 1)
-            {
-                error = "A scalar while request requires one typed loop condition and no unscoped conditional.";
-                return false;
-            }
-
-            var loopPosition = GetCollectionPositions(whileFact, ConditionValueId, 1)[0];
-            requirements.AddRange(Ordered(events.Where(item => item.Position < loopPosition))
-                .Select(item => item.Requirement));
-            var body = Ordered(events.Where(item => item.Position > loopPosition))
-                .Select(item => item.Requirement).ToImmutableArray();
-            if (body.IsDefaultOrEmpty)
-            {
-                error = "A scalar while request requires an ordered loop body after its condition.";
-                return false;
-            }
-
-            requirements.Add(new WhileRequirement(loopConditions[0], body));
+            return false;
         }
-        else if (condition is null)
+
+        if (condition is not null && blocks.Any(block => block.Header is WhileRequirement or IterationRequirement))
+        {
+            error = "A loop cannot be combined with an unscoped scalar conditional.";
+            return false;
+        }
+
+        if (condition is null)
         {
             requirements.AddRange(Ordered(events).Select(item => item.Requirement));
         }
@@ -2538,48 +2536,102 @@ public static class SemanticProgramFactMapper
         return quantity > 0;
     }
 
-    /// <summary>
-    /// Builds prefix conditional bodies from request spans, innermost first. A condition owns the
-    /// statements through its sentence boundary; a later sentence is a sibling, not a branch statement.
-    /// </summary>
-    private static bool TryProjectSentenceConditionals(
-        SequenceSemanticFact fact,
-        ImmutableArray<SemanticExpression> conditions,
-        ImmutableArray<int> sentenceEnds,
+    private static bool TryCollectLoopBlocks(
+        ImmutableArray<SequenceSemanticFact> facts,
+        List<RequirementBlock> blocks,
+        out string? error)
+    {
+        error = null;
+        var loops = new List<RequirementBlock>();
+        var whileFact = facts.FirstOrDefault(fact => fact.Id == WhileFactId);
+        if (whileFact is not null)
+        {
+            if (!TryGetExpressions(whileFact, ConditionValueId, out var conditions) || conditions.IsDefaultOrEmpty)
+            {
+                error = "A while request needs typed conditions.";
+                return false;
+            }
+
+            var positions = GetCollectionPositions(whileFact, ConditionValueId, conditions.Length);
+            for (var index = 0; index < conditions.Length; index++)
+            {
+                loops.Add(new RequirementBlock(positions[index], int.MaxValue, new WhileRequirement(conditions[index], [])));
+            }
+        }
+
+        var iterationFact = facts.FirstOrDefault(fact => fact.Id == "program.requirement.iteration");
+        if (iterationFact is not null)
+        {
+            if (!TryGetCollection(iterationFact, "item", out var items) || items.IsDefaultOrEmpty ||
+                !TryGetExpressions(iterationFact, "source", out var sources) || sources.Length != items.Length)
+            {
+                error = "An iteration request needs aligned item names and typed sources.";
+                return false;
+            }
+
+            var positions = GetCollectionPositions(iterationFact, "source", items.Length);
+            for (var index = 0; index < items.Length; index++)
+            {
+                loops.Add(new RequirementBlock(positions[index], int.MaxValue, new IterationRequirement(items[index], sources[index], [])));
+            }
+        }
+
+        loops = loops.OrderBy(block => block.Position).ToList();
+        var ends = facts.FirstOrDefault(fact => fact.Id == "program.requirement.repetition-end");
+        if (ends is not null && TryGetCollection(ends, "end", out var markers))
+        {
+            foreach (var position in GetCollectionPositions(ends, "end", markers.Length).Order())
+            {
+                var open = loops.FindLastIndex(block => block.Position < position && block.End == int.MaxValue);
+                if (open < 0)
+                {
+                    error = "An end-repetition marker requires an open repetition.";
+                    return false;
+                }
+
+                loops[open] = loops[open] with { End = position };
+            }
+        }
+
+        if (loops.Count(block => block.End == int.MaxValue) > 1)
+        {
+            error = "Nested repetitions need explicit end-repetition boundaries.";
+            return false;
+        }
+
+        blocks.AddRange(loops);
+        return true;
+    }
+
+    /// <summary>Builds all scoped bodies innermost first, rejecting overlapping non-nested spans.</summary>
+    private static bool TryProjectRequestBlocks(
+        List<RequirementBlock> blocks,
         int? separator,
         ImmutableArray<RequirementEvent>.Builder events,
         ref int eventOrder,
         out string? error)
     {
         error = null;
-        if (sentenceEnds.IsDefault || sentenceEnds.Length != conditions.Length ||
-            !fact.CollectionPositions.TryGetValue(ConditionValueId, out var positions) ||
-            positions.Length != conditions.Length)
+        if (blocks.Any(block => block.End <= block.Position) || blocks.Any(outer => blocks.Any(inner =>
+                outer.Position < inner.Position && inner.Position < outer.End && outer.End < inner.End)))
         {
-            error = "Conditional request spans must align with their typed conditions.";
+            error = "Request block boundaries must be non-empty and properly nested.";
             return false;
         }
 
         var separatorUsed = false;
-        foreach (var index in Enumerable.Range(0, conditions.Length).OrderByDescending(index => positions[index]))
+        foreach (var block in blocks.OrderByDescending(block => block.Position))
         {
-            var position = positions[index];
-            var end = sentenceEnds[index];
-            if (end <= position)
-            {
-                error = "A conditional request needs a non-empty source span.";
-                return false;
-            }
-
-            var children = Ordered(events.Where(item => item.Position > position && item.Position < end)).ToArray();
-            var hasElse = !separatorUsed && separator is { } boundary && boundary > position && boundary < end;
-            var thenBody = children.Where(item => !hasElse || item.Position < separator!.Value)
+            var children = Ordered(events.Where(item => item.Position > block.Position && item.Position < block.End)).ToArray();
+            var hasElse = block.Header is ConditionalRequirement && !separatorUsed &&
+                separator is { } boundary && boundary > block.Position && boundary < block.End;
+            var body = children.Where(item => !hasElse || item.Position < separator!.Value)
                 .Select(item => item.Requirement).ToImmutableArray();
             var elseBody = children.Where(item => hasElse && item.Position > separator!.Value)
                 .Select(item => item.Requirement).ToImmutableArray();
-            if (thenBody.IsDefaultOrEmpty || (hasElse && elseBody.IsDefaultOrEmpty))
+            if (body.IsDefaultOrEmpty || (hasElse && elseBody.IsDefaultOrEmpty))
             {
-                error = "A conditional request requires a statement in each declared branch.";
+                error = "A request block requires a statement in each declared body.";
                 return false;
             }
 
@@ -2588,8 +2640,20 @@ public static class SemanticProgramFactMapper
                 events.Remove(child);
             }
 
-            events.Add(new RequirementEvent(position, eventOrder++, new ConditionalRequirement(
-                conditions[index], thenBody, elseBody)));
+            ProgramRequirement? requirement = block.Header switch
+            {
+                WhileRequirement repetition => repetition with { Body = body },
+                IterationRequirement iteration => iteration with { Body = body },
+                ConditionalRequirement conditional => conditional with { ThenRequirements = body, ElseRequirements = elseBody },
+                _ => null
+            };
+            if (requirement is null)
+            {
+                error = "The request names an unsupported block header.";
+                return false;
+            }
+
+            events.Add(new RequirementEvent(block.Position, eventOrder++, requirement));
             separatorUsed |= hasElse;
         }
 
