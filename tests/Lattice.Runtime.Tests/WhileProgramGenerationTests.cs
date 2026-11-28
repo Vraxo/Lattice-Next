@@ -82,6 +82,35 @@ public sealed class WhileProgramGenerationTests
         await Execute(string.Join('\n', lines[(start + 1)..end]), expected);
     }
 
+    [Theory]
+    [InlineData(
+        "Write a Python program that set round to 0 then set text to 'ab' then while round is less than 2 then set round to round + 1. For each letter in text then when letter is equal to 'b' then print letter. End repetition. Print round.",
+        "b\n1\nb\n2\n")]
+    [InlineData(
+        "Write a Python program that set outer to 0 then while outer is less than 2 then set inner to 0. While inner is less than 2 then print inner then set inner to inner + 1. End repetition. Set outer to outer + 1. End repetition. Print outer.",
+        "0\n1\n0\n1\n2\n")]
+    [InlineData(
+        "Create a Python program that set text to 'ab' then for each letter in text.upper() then print letter. End repetition. Print text[0].",
+        "A\nB\na\n")]
+    [InlineData(
+        "Write a Python program that set limit to 3 then for each number in range(0, limit) then print number. End repetition. Print limit.",
+        "0\n1\n2\n3\n")]
+    public async Task Executes_nested_and_explicitly_bounded_repetitions(string request, string expected)
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+        var result = await session.SubmitAsync(request);
+        var utterance = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeTurnStatus.Completed, result.Status);
+        Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, utterance.Kind);
+        var fence = new string('`', 3);
+        var lines = utterance.Message!.Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n');
+        var start = Array.IndexOf(lines, fence + "python");
+        var end = Array.IndexOf(lines, fence, start + 1);
+        Assert.True(start >= 0 && end > start);
+        await Execute(string.Join('\n', lines[(start + 1)..end]), expected);
+    }
+
     private static async Task Execute(string code, string expected)
     {
         var info = new ProcessStartInfo(OperatingSystem.IsWindows() ? "python" : "python3")
