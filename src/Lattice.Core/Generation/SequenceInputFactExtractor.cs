@@ -552,7 +552,7 @@ public static class SequenceInputFactExtractor
         out string? error)
     {
         error = null;
-        if (kind is not ("arithmetic" or "boolean" or "value" or "functionCall" or "arguments" or "comparisonOperator"))
+        if (kind is not ("arithmetic" or "boolean" or "value" or "text" or "functionCall" or "arguments" or "comparisonOperator"))
         {
             error = $"Semantic expression capture kind '{kind}' is unsupported.";
             return false;

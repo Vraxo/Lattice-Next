@@ -82,6 +82,31 @@ public sealed class ApiRequestGenerationTests
         Assert.Contains("canvas = pygame.display.set_mode([width + 10, height + 20])", code, StringComparison.Ordinal);
     }
 
+    [Theory]
+    [InlineData("screen", "black", "0")]
+    [InlineData("canvas", "red", "255")]
+    [InlineData("surface", "'white'", "765")]
+    public async Task Executes_clear_and_present_with_request_derived_receivers_and_colors(string name, string color, string expected)
+    {
+        var code = await GenerateAndExecute(
+            $"Write a Python program using Pygame. Initialize Pygame, open a window that is 32 wide and 24 tall saving result as {name}. " +
+            $"Clear the {name} to {color}. Present the frame. " +
+            $"Invoke api pygame-surface-pixel with arguments ({name}, [0, 0]) saving result as pixel then print pixel.r + pixel.g + pixel.b. Quit Pygame.",
+            expected + "\n");
+        Assert.Contains($"({name}).fill(", code, StringComparison.Ordinal);
+        Assert.Contains("pygame.display.flip()", code, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task Executes_clear_and_presentation_in_a_request_derived_frame_loop()
+    {
+        await GenerateAndExecute(
+            "Write a Python program using Pygame. Initialize Pygame, open a window that is 32 wide and 24 tall. " +
+            "Set count to 0 then while count is less than 2 then clear the screen to red. Present the frame. Set count to count + 1. End repetition. " +
+            "Invoke api pygame-surface-pixel with arguments (screen, [0, 0]) saving result as pixel then print pixel.r. Quit Pygame.",
+            "255\n");
+    }
+
     private static async Task<string> GenerateAndExecute(string request, string expected)
     {
         var client = new LatticeRuntimeClient();

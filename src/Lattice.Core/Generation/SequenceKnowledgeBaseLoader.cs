@@ -719,7 +719,7 @@ public static class SequenceKnowledgeBaseLoader
     }
 
     private static bool IsValidSemanticExpressionKind(string? kind) =>
-        kind is null or "arithmetic" or "boolean" or "value" or "functionCall" or "arguments" or "comparisonOperator";
+        kind is null or "arithmetic" or "boolean" or "value" or "text" or "functionCall" or "arguments" or "comparisonOperator";
 
     private static bool IsValidIdentifier(string value) =>
         value.Length is > 0 and <= MaximumIdentifierLength &&
