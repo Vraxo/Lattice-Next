@@ -3765,6 +3765,10 @@
     "subscriptDelimiter": {
       "openingDelimiter": "[",
       "closingDelimiter": "]"
+    },
+    "listLiteralDelimiter": {
+      "openingDelimiter": "[",
+      "closingDelimiter": "]"
     }
   },
   "interpolationFormat": {

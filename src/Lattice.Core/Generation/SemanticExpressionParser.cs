@@ -38,6 +38,14 @@ internal static class SemanticExpressionParser
                 Current.Kind == TokenKind.End;
         }
 
+        public bool TryParseArgumentValues(out ImmutableArray<SemanticExpression> values)
+        {
+            values = [];
+            return Current.Kind == TokenKind.OpenDelimiter &&
+                Current.Value == syntax.FunctionCallFormat.OpeningDelimiter &&
+                TryParseValues(syntax.FunctionCallFormat.ClosingDelimiter, out values) && Current.Kind == TokenKind.End;
+        }
+
         private Token Current => tokens[position];
 
         private bool TryParseExpression(int minimumPrecedence, out SemanticExpression? expression)
@@ -89,7 +97,7 @@ internal static class SemanticExpressionParser
                 else if (Current.Kind == TokenKind.OpenDelimiter &&
                          Current.Value == syntax.FunctionCallFormat.OpeningDelimiter)
                 {
-                    if (!TryParseArguments(out var arguments))
+                    if (!TryParseValues(syntax.FunctionCallFormat.ClosingDelimiter, out var arguments))
                     {
                         return false;
                     }
@@ -141,8 +149,25 @@ internal static class SemanticExpressionParser
                 return true;
             }
 
+            if (Current.Kind == TokenKind.OpenDelimiter && syntax.ListLiteralDelimiter is { } list &&
+                Current.Value == list.OpeningDelimiter)
+            {
+                if (!TryParseValues(list.ClosingDelimiter, out var items))
+                {
+                    return false;
+                }
+
+                expression = new SemanticListLiteralExpression(items);
+                return true;
+            }
+
             if (Current.Kind == TokenKind.OpenDelimiter)
             {
+                if (Current.Value != syntax.ExpressionGroupingDelimiter?.OpeningDelimiter)
+                {
+                    return false;
+                }
+
                 var closingDelimiter = Current.MatchingDelimiter;
                 position++;
                 if (closingDelimiter is null ||
@@ -205,13 +230,13 @@ internal static class SemanticExpressionParser
             return true;
         }
 
-        private bool TryParseArguments(out ImmutableArray<SemanticExpression> values)
+        private bool TryParseValues(string closingDelimiter, out ImmutableArray<SemanticExpression> values)
         {
             values = [];
             position++;
             var arguments = ImmutableArray.CreateBuilder<SemanticExpression>();
             if (Current.Kind == TokenKind.CloseDelimiter &&
-                Current.Value == syntax.FunctionCallFormat.ClosingDelimiter)
+                Current.Value == closingDelimiter)
             {
                 position++;
                 return true;
@@ -232,7 +257,7 @@ internal static class SemanticExpressionParser
                 }
 
                 if (Current.Kind != TokenKind.CloseDelimiter ||
-                    Current.Value != syntax.FunctionCallFormat.ClosingDelimiter)
+                    Current.Value != closingDelimiter)
                 {
                     return false;
                 }
@@ -274,6 +299,21 @@ internal static class SemanticExpressionParser
                 return BooleanExpressionNormalizer.TryParse(source, syntax, out expression);
             case "value":
                 return TryParseValue(source, syntax, out expression);
+            case "arguments":
+                if (string.IsNullOrWhiteSpace(source) || source.Length > MaximumSourceLength ||
+                    !TryTokenize(source, syntax, out var argumentTokens))
+                {
+                    return false;
+                }
+
+                var parser = new Parser(argumentTokens, syntax);
+                if (!parser.TryParseArgumentValues(out var values))
+                {
+                    return false;
+                }
+
+                expression = new SemanticArgumentsExpression(values);
+                return SemanticExpressionAnalysis.IsValid(expression);
             case "functionCall":
                 return TryParseSyntax(source, syntax, out expression) &&
                     expression is SemanticFunctionCallExpression;

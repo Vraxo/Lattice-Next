@@ -2667,32 +2667,103 @@ public static class SemanticProgramFactMapper
         out string? error)
     {
         error = null;
-        foreach (var (factId, valueId) in new[]
+        var import = facts.FirstOrDefault(fact => fact.Id == "program.requirement.import");
+        if (import is not null)
         {
-            ("program.requirement.import", "module"),
-            ("program.requirement.api-call", "contract")
-        })
-        {
-            var fact = facts.FirstOrDefault(candidate => candidate.Id == factId);
-            if (fact is null)
+            if (!TryGetCollection(import, "module", out var modules) || modules.IsDefaultOrEmpty)
             {
-                continue;
-            }
-
-            if (!TryGetCollection(fact, valueId, out var values) || values.IsDefaultOrEmpty)
-            {
-                error = $"A declared import or API invocation requires '{valueId}' values.";
+                error = "An import requires module names.";
                 return false;
             }
 
-            var positions = GetCollectionPositions(fact, valueId, values.Length);
+            var positions = GetCollectionPositions(import, "module", modules.Length);
+            for (var index = 0; index < modules.Length; index++)
+            {
+                events.Add(new RequirementEvent(positions[index], eventOrder++, new ImportRequirement(modules[index])));
+            }
+        }
+
+        var calls = facts.FirstOrDefault(fact => fact.Id == "program.requirement.api-call");
+        var arguments = facts.FirstOrDefault(fact => fact.Id == "program.requirement.api-arguments");
+        var results = facts.FirstOrDefault(fact => fact.Id == "program.requirement.api-result");
+        if (calls is null)
+        {
+            if (arguments is not null || results is not null)
+            {
+                error = "API arguments and result names need a declared API invocation.";
+                return false;
+            }
+
+            return true;
+        }
+
+        if (!TryGetCollection(calls, "contract", out var contracts) || contracts.IsDefaultOrEmpty)
+        {
+            error = "An API invocation requires contract references.";
+            return false;
+        }
+
+        var callPositions = GetCollectionPositions(calls, "contract", contracts.Length);
+        var callEnds = calls.CollectionSentenceEnds.TryGetValue("contract", out var ends) && ends.Length == contracts.Length
+            ? ends : Enumerable.Repeat(int.MaxValue, contracts.Length).ToImmutableArray();
+        var callArguments = Enumerable.Repeat(ImmutableArray<SemanticExpression>.Empty, contracts.Length).ToArray();
+        var argumentSeen = new bool[contracts.Length];
+        var resultNames = new string?[contracts.Length];
+        int FindCall(int position) => Enumerable.Range(0, contracts.Length)
+            .Where(index => callPositions[index] < position && position < callEnds[index])
+            .OrderBy(index => callPositions[index]).LastOrDefault(-1);
+
+        if (arguments is not null)
+        {
+            if (!TryGetExpressions(arguments, "values", out var values))
+            {
+                error = "API arguments need typed argument lists.";
+                return false;
+            }
+
+            var positions = GetCollectionPositions(arguments, "values", values.Length);
             for (var index = 0; index < values.Length; index++)
             {
-                ProgramRequirement requirement = valueId == "module"
-                    ? new ImportRequirement(values[index])
-                    : new CallRequirement("invoke", []) { ApiContract = values[index] };
-                events.Add(new RequirementEvent(positions[index], eventOrder++, requirement));
+                var call = FindCall(positions[index]);
+                if (call < 0 || argumentSeen[call] || values[index] is not SemanticArgumentsExpression inputs)
+                {
+                    error = "Each API argument clause must belong to one invocation in its sentence.";
+                    return false;
+                }
+
+                callArguments[call] = inputs.Values;
+                argumentSeen[call] = true;
             }
+        }
+
+        if (results is not null)
+        {
+            if (!TryGetCollection(results, "name", out var names))
+            {
+                error = "API result bindings need names.";
+                return false;
+            }
+
+            var positions = GetCollectionPositions(results, "name", names.Length);
+            for (var index = 0; index < names.Length; index++)
+            {
+                var call = FindCall(positions[index]);
+                if (call < 0 || resultNames[call] is not null)
+                {
+                    error = "Each API result name must belong to one invocation in its sentence.";
+                    return false;
+                }
+
+                resultNames[call] = names[index];
+            }
+        }
+
+        for (var index = 0; index < contracts.Length; index++)
+        {
+            ProgramRequirement requirement = resultNames[index] is { } name
+                ? new AssignmentRequirement(name, new SemanticApiExpression(contracts[index]) { Arguments = callArguments[index] })
+                : new CallRequirement("invoke", callArguments[index]) { ApiContract = contracts[index] };
+            events.Add(new RequirementEvent(callPositions[index], eventOrder++, requirement));
         }
 
         return true;

@@ -690,6 +690,10 @@
         ],
         [
           "sets"
+        ],
+        [
+          "invoke",
+          "api"
         ]
       ],
       "forbiddenAnySequences": [
@@ -743,6 +747,10 @@
         ],
         [
           "sets"
+        ],
+        [
+          "invoke",
+          "api"
         ]
       ],
       "forbiddenAnySequences": [
@@ -796,6 +804,10 @@
         ],
         [
           "sets"
+        ],
+        [
+          "invoke",
+          "api"
         ]
       ],
       "forbiddenAnySequences": [
@@ -849,6 +861,10 @@
         ],
         [
           "sets"
+        ],
+        [
+          "invoke",
+          "api"
         ]
       ],
       "forbiddenAnySequences": [
@@ -6699,7 +6715,10 @@
           "valueId": "contract",
           "stopBeforeTokens": [
             "then",
-            "and"
+            "and",
+            "with",
+            "saving",
+            "save"
           ]
         }
       ],
@@ -6794,6 +6813,71 @@
           "factId": "program.requirement.repetition-end",
           "valueId": "end",
           "literalValue": "end"
+        }
+      ],
+      "repeatMatches": true,
+      "searchAllSentences": true
+    },
+    {
+      "id": "capture-api-argument-values",
+      "matchTokens": [
+        "with",
+        "arguments"
+      ],
+      "factId": "program.requirement.api-arguments",
+      "captures": [
+        {
+          "factId": "program.requirement.api-arguments",
+          "valueId": "values",
+          "stopBeforeTokens": [
+            "then",
+            "saving",
+            "save"
+          ],
+          "semanticExpressionKind": "arguments",
+          "preserveRawValue": true
+        }
+      ],
+      "repeatMatches": true,
+      "searchAllSentences": true
+    },
+    {
+      "id": "capture-api-result-saving",
+      "matchTokens": [
+        "saving",
+        "result",
+        "as"
+      ],
+      "factId": "program.requirement.api-result",
+      "captures": [
+        {
+          "factId": "program.requirement.api-result",
+          "valueId": "name",
+          "stopBeforeTokens": [
+            "then",
+            "and"
+          ]
+        }
+      ],
+      "repeatMatches": true,
+      "searchAllSentences": true
+    },
+    {
+      "id": "capture-api-result-save",
+      "matchTokens": [
+        "save",
+        "result",
+        "as"
+      ],
+      "factId": "program.requirement.api-result",
+      "captures": [
+        {
+          "factId": "program.requirement.api-result",
+          "valueId": "name",
+          "stopBeforeTokens": [
+            "then",
+            "and"
+          ]
         }
       ],
       "repeatMatches": true,

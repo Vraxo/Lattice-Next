@@ -595,6 +595,20 @@ public sealed class GenerationLanguagePackLoader
             return false;
         }
 
+        if (syntax.ListLiteralDelimiter is { } list &&
+            (!IsValidExpressionGroupingDelimiter(list) || list == expressionGroupingDelimiter ||
+             list.OpeningDelimiter == syntax.FunctionCallFormat.OpeningDelimiter ||
+             list.ClosingDelimiter == syntax.FunctionCallFormat.ClosingDelimiter ||
+             declaredDelimiters.Any(delimiter => delimiter != list &&
+                 (delimiter.OpeningDelimiter == list.OpeningDelimiter || delimiter.ClosingDelimiter == list.ClosingDelimiter ||
+                  delimiter.OpeningDelimiter == list.ClosingDelimiter || delimiter.ClosingDelimiter == list.OpeningDelimiter)) ||
+             (syntax.SubscriptDelimiter is { } index && index != list &&
+                 (index.OpeningDelimiter == list.OpeningDelimiter || index.ClosingDelimiter == list.ClosingDelimiter ||
+                  index.OpeningDelimiter == list.ClosingDelimiter || index.ClosingDelimiter == list.OpeningDelimiter))))
+        {
+            return false;
+        }
+
         return true;
     }
 

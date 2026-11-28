@@ -180,6 +180,11 @@ internal static class GenerationInputSyntaxParser
             delimiters = delimiters.Add(subscript);
         }
 
+        if (syntax.ListLiteralDelimiter is { } list && !delimiters.Contains(list))
+        {
+            delimiters = delimiters.Add(list);
+        }
+
         var callFormat = functionCallFormat ?? syntax.FunctionCallFormat;
         if (callFormat is not null)
         {
