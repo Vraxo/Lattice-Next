@@ -165,7 +165,7 @@ public static class SequenceKnowledgeBaseLoader
         foreach (var item in element.EnumerateArray())
         {
             if (item.ValueKind != JsonValueKind.Object ||
-                !HasOnlyProperties(item, "id", "matchTokens", "factId", "valueId", "literalValue", "captures", "searchAllSentences", "requiredAnySequences", "requiredAllSequences", "forbiddenAnySequences", "repeatMatches", "semanticExpressionKind") ||
+                !HasOnlyProperties(item, "id", "matchTokens", "factId", "valueId", "literalValue", "captures", "followingMatchTokens", "searchAllSentences", "requiredAnySequences", "requiredAllSequences", "forbiddenAnySequences", "repeatMatches", "semanticExpressionKind") ||
                 !TryGetString(item, "id", out var id) ||
                 !IsValidIdentifier(id) ||
                 !identifiers.Add(id) ||
@@ -179,6 +179,8 @@ public static class SequenceKnowledgeBaseLoader
                 !TryGetOptionalString(item, "literalValue", out var literalValue) ||
                 (literalValue is not null && (valueId is null || literalValue.Length > 16_384)) ||
                 !TryGetArray(item, "captures", 16, required: false, out var captureElements) ||
+                !TryGetStringArray(item, "followingMatchTokens", out var followingMatchTokens) ||
+                followingMatchTokens.Length > 16 ||
                 !TryGetOptionalBoolean(item, "searchAllSentences", out var searchAllSentences) ||
                 !TryGetOptionalBoolean(item, "repeatMatches", out var repeatMatches) ||
                 !TryGetOptionalString(item, "semanticExpressionKind", out var semanticExpressionKind) ||
@@ -204,6 +206,7 @@ public static class SequenceKnowledgeBaseLoader
                 literalValue,
                 captures)
             {
+                FollowingMatchTokens = followingMatchTokens,
                 SearchAllSentences = searchAllSentences,
                 RequiredAnySequences = requiredAnySequences,
                 RequiredAllSequences = requiredAllSequences,

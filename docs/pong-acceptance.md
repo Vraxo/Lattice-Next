@@ -179,3 +179,17 @@ positioned calls in one sentence using actual response execution and pixels.
 No paddle, score, collision, or game-specific generation knowledge is added.
 PR #612 verified explicit timing requests; global frame-rate placement remains
 pending alongside held-input, circle drawing, close handling and full composition.
+
+## Circle and mixed-shape interpretation increment
+
+`Draw LABEL as a COLOR circle at x X and y Y with radius R` uses a scalar
+circle API contract and the same generic argument slots as rectangle drawing.
+Coordinates/radius can reference ordinary state or arithmetic. Tests submit
+mixed-shape requests through the normal session and inspect circle center,
+outside, and rectangle pixels with changed colors, positions and radii.
+
+Input rules can now require ordered `followingMatchTokens` within the current
+clause (before unquoted `then` or sentence punctuation). Rectangle and circle
+rules use this instead of request-global shape keywords. The generic extractor
+does not know about shapes or libraries. PR #613 verified rectangle drawing.
+Canonical scheduling, held-input and close handling remain unfinished.

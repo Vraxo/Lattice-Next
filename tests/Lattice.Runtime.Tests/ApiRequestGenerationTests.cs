@@ -156,6 +156,21 @@ public sealed class ApiRequestGenerationTests
             "255\n765\n");
     }
 
+    [Theory]
+    [InlineData("red", 20, 24, 4, 255)]
+    [InlineData("white", 30, 20, 7, 765)]
+    public async Task Executes_mixed_circle_and_rectangle_descriptions(string color, int x, int y, int radius, int expected)
+    {
+        await GenerateAndExecute(
+            "Write a Python program using Pygame. Initialize Pygame. Open a window that is 64 wide and 48 tall. Clear the screen to black. " +
+            $"Set xpos to {x} and set ypos to {y} and set size to {radius}. " +
+            $"Draw marker as a {color} circle at x xpos and y ypos with radius size then draw panel as a white rectangle at x 2 and y 3 with width 4 and height 5. " +
+            "Invoke api pygame-surface-pixel with arguments (screen, [xpos, ypos]) saving result as center then print center.r + center.g + center.b. " +
+            "Invoke api pygame-surface-pixel with arguments (screen, [xpos + size + 1, ypos]) saving result as outside then print outside.r + outside.g + outside.b. " +
+            "Invoke api pygame-surface-pixel with arguments (screen, [2, 3]) saving result as panel then print panel.r + panel.g + panel.b. Quit Pygame.",
+            $"{expected}\n0\n765\n");
+    }
+
     private static async Task<string> GenerateAndExecute(string request, string expected)
     {
         var client = new LatticeRuntimeClient();
