@@ -166,3 +166,16 @@ a per-iteration scheduling constraint; that placement remains unfinished.
 
 PR #611 verified natural surface clearing/presentation, including actual changed
 color pixels and receiver names through normal-session generated Python.
+
+## Rectangle description increment
+
+`Draw the LABEL as a COLOR rectangle at x X and y Y with width W and height H`
+maps to a reusable scalar-dimensions rectangle API contract. The descriptive
+label is not interpreted as a game object; coordinates and dimensions are
+ordinary expressions with normal dependency checks. The destination is `screen`
+for this supported wording. Generic API invocation remains available for other
+receivers. Tests check changed colors/state/dimensions and two independently
+positioned calls in one sentence using actual response execution and pixels.
+No paddle, score, collision, or game-specific generation knowledge is added.
+PR #612 verified explicit timing requests; global frame-rate placement remains
+pending alongside held-input, circle drawing, close handling and full composition.
