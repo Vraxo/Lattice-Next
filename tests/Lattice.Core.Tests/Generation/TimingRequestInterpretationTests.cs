@@ -47,6 +47,14 @@ public sealed class TimingRequestInterpretationTests
         Assert.Empty(code);
     }
 
+    [Theory]
+    [InlineData("Write a Python program using Pygame. Initialize Pygame. Create a clock saving result as timer. Set count to 0 and set elapsed to 0 then while count is less than 2 then cap frames to 30 frames per second using timer saving result as elapsed. Set count to count + 1. End repetition. Print count. When elapsed is at least 0 then print 'timed'. Quit Pygame.")]
+    [InlineData("Write a Python program using Pygame. Initialize Pygame. Create a clock. Set rate to 25. Limit frames to rate * 2 frames per second using clock saving result as elapsed. Set seconds to elapsed / 1000. When seconds is at least 0 then print 'timed'. Quit Pygame.")]
+    public void Plans_complete_execution_probes(string request)
+    {
+        Assert.NotEmpty(Generate(request));
+    }
+
     private static SemanticProgram Interpret(string request)
     {
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var error), error);

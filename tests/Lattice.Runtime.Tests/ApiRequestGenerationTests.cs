@@ -116,8 +116,8 @@ public sealed class ApiRequestGenerationTests
             $"Write a Python program using Pygame. Initialize Pygame. Create a clock saving result as {name}. " +
             "Set count to 0 and set elapsed to 0 then while count is less than 2 then " +
             $"{verb} frames to {rate} frames per second using {name} saving result as elapsed. " +
-            "Set count to count + 1. End repetition. Print count then print elapsed >= 0. Quit Pygame.",
-            "2\nTrue\n");
+            "Set count to count + 1. End repetition. Print count. When elapsed is at least 0 then print 'timed'. Quit Pygame.",
+            "2\ntimed\n");
         Assert.Contains($"({name}).tick({rate})", code, StringComparison.Ordinal);
     }
 
@@ -126,8 +126,8 @@ public sealed class ApiRequestGenerationTests
     {
         await GenerateAndExecute(
             "Write a Python program using Pygame. Initialize Pygame. Create a clock. Set rate to 25. " +
-            "Limit frames to rate * 2 frames per second using clock saving result as elapsed then print elapsed / 1000 >= 0. Quit Pygame.",
-            "True\n");
+            "Limit frames to rate * 2 frames per second using clock saving result as elapsed. Set seconds to elapsed / 1000. When seconds is at least 0 then print 'timed'. Quit Pygame.",
+            "timed\n");
     }
 
     private static async Task<string> GenerateAndExecute(string request, string expected)
