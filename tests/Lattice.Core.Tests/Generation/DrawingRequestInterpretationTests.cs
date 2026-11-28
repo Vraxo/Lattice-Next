@@ -22,7 +22,7 @@ public sealed class DrawingRequestInterpretationTests
         Assert.True(new GenerationLanguagePackLoader().TryLoadEmbedded(out var packs, out error), error);
         Assert.True(SequenceInputFactExtractor.TryExtract(knowledge!, request, out var facts, out error), error);
         Assert.True(SemanticProgramPlanner.TryGenerateProgram(facts, packs["python"], out var code, out _, out error), error);
-        Assert.Contains($"pygame.draw.rect(screen, '{color}', [{x}, {y}, {width}, {height}])", code, StringComparison.Ordinal);
+        Assert.Contains($"pygame.draw.rect(screen, \"{color}\", [{x}, {y}, {width}, {height}])", code, StringComparison.Ordinal);
     }
 
     [Theory]
