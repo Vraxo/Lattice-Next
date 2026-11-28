@@ -182,7 +182,7 @@ public sealed class ApiRequestGenerationTests
         await GenerateAndExecute(
             "Write a Python program using Pygame. Initialize Pygame. Open a window that is 32 wide and 24 tall. " +
             $"Read {wording} saving result as {state}. Read the {key} key code saving result as {codeName}. " +
-            $"When {state}[{codeName}] then print 'held' otherwise print 'released'. Quit Pygame.",
+            $"When {state}[{codeName}] == True then print 'held' otherwise print 'released'. Quit Pygame.",
             "released\n");
     }
 
