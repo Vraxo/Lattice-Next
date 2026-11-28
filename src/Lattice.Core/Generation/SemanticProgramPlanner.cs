@@ -67,9 +67,9 @@ public static class SemanticProgramPlanner
             return false;
         }
 
-        if (!SemanticProgramValidator.IsValid(program))
+        if (!SemanticProgramValidator.HasValidBreakContext(program.Requirements))
         {
-            error = "A program plan requires structurally valid requirements and loop-control context.";
+            error = "An early repetition exit must be inside a loop, not across a function or method boundary.";
             return false;
         }
 

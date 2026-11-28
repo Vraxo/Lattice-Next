@@ -211,8 +211,9 @@ PR #614 verified mixed circle/rectangle requests and pixel execution checks.
 `Leave repetition` and `Stop repetition` project an ordered language-neutral
 `BreakRequirement`, leaving the innermost repetition and resuming after it.
 The shared validator requires an enclosing iteration and resets that context
-inside declarations. Planning now applies structural validation at entry, so
-direct semantic trees cannot bypass this context check. Python operations
+inside declarations. Planning now applies a focused early-exit context check at entry, so
+direct semantic trees cannot bypass this check; existing detailed planner
+diagnostics and supported declaration behavior stay unchanged. Python operations
 realize early exit through the shared pipeline at the supported block depths.
 Normal-session tests execute changed thresholds, nested loops and collection
 iteration exits. This is a reusable prerequisite, not yet natural close-event
